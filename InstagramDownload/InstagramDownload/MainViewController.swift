@@ -14,6 +14,7 @@ class MainViewController: UIViewController {
     var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
     
     var readButton : UIButton!
+    var clipBoardButton : UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +49,12 @@ class MainViewController: UIViewController {
         readButton.setTitle("Read", for: .normal)
         bottomBar.addSubview(readButton)
         readButton.addTarget(self, action: #selector(readButtonPressed), for: .touchUpInside)
+        
+        clipBoardButton = UIButton(frame: naviBar.bounds)
+        clipBoardButton.setTitle("클립보드에서 붙여넣기", for: .normal)
+        naviBar.addSubview(clipBoardButton)
+        clipBoardButton.addTarget(self, action: #selector(clipBoardButtonPressed), for: .touchUpInside)
+        
     }
     
     @objc func readButtonPressed(){
@@ -62,6 +69,13 @@ class MainViewController: UIViewController {
             
         }
         
+    }
+    
+    @objc func clipBoardButtonPressed(){
+        if let theString = UIPasteboard.general.string {
+            self.urlString = theString
+            self.webView.reloading()
+        }
     }
     
     

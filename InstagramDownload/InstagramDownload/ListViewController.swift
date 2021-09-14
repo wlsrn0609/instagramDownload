@@ -53,6 +53,8 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
         
         let dic = urlStrings[indexPath.row]
         cell.valueLabel.text = dic["size"]
+        cell.index = indexPath.row
+        cell.delegate = self
         if let url = dic["url"] {
             Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
                 if let data = kData {
@@ -75,23 +77,67 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
     
 }
 
+extension ListViewController : ListViewTableViewCellDelegate {
+    
+    func downloadButtonPressed(image: UIImage?) {
+        if let image = image {
+            UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
+        if let error = error{
+            print("save image fail \(error.localizedDescription)")
+        }else{
+            toastShow(message: "Complete.")
+        }
+    }
+}
+
+
+@objc protocol ListViewTableViewCellDelegate {
+    @objc optional func downloadButtonPressed(image:UIImage?)
+}
+
 class ListViewTableViewCell : UITableViewCell {
     
     var instaImageView : UIImageView!
     var valueLabel : UILabel!
+    var downloadButton : UIButton!
+    var index = 0
+    var delegate : ListViewTableViewCellDelegate?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         self.frame = CGRect(x: 0, y: 0, width: SCREEN.WIDTH, height: 100)
         
+        self.selectionStyle = .none
+        
         instaImageView = UIImageView(frame: CGRect(x: 10, y: 0, width: 100, height: 100))
         instaImageView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        self.addSubview(instaImageView)
         
-        valueLabel = UILabel(frame: CGRect(x: instaImageView.frame.maxX + 10, y: 0, width: SCREEN.WIDTH - (instaImageView.frame.maxX + 10), height: 100))
-        self.addSubview(valueLabel)
+        self.contentView.addSubview(instaImageView)
         
+        downloadButton = UIButton(type: .system)
+        downloadButton.frame = CGRect(x: SCREEN.WIDTH - 60, y: 0, width: 50, height: 30)
+        downloadButton.center.y = 50
+        downloadButton.setTitle("다운", for: .normal)
+        downloadButton.addTarget(self, action: #selector(downloadButtonPressed), for: .touchUpInside)
+        downloadButton.layer.cornerRadius = downloadButton.frame.size.height / 2
+        downloadButton.setTitleColor(UIColor.black, for: .normal)
+        downloadButton.layer.borderWidth = 0.5
+        downloadButton.layer.borderColor = UIColor.black.cgColor
+        self.contentView.addSubview(downloadButton)
+        
+        valueLabel = UILabel(frame: CGRect(x: instaImageView.frame.maxX + 10, y: 0, width: downloadButton.frame.minX - (instaImageView.frame.maxX + 10), height: 100))
+        self.contentView.addSubview(valueLabel)
+        
+    }
+    
+    @objc func downloadButtonPressed(){
+        print("downloadButtonPressed")
+        self.delegate?.downloadButtonPressed?(image: self.instaImageView.image)
     }
     
     required init?(coder: NSCoder) {
