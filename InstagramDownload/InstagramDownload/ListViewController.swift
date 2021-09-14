@@ -115,8 +115,6 @@ class ListViewTableViewCell : UITableViewCell {
         self.selectionStyle = .none
         
         instaImageView = UIImageView(frame: CGRect(x: 10, y: 0, width: 100, height: 100))
-        instaImageView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
-        
         self.contentView.addSubview(instaImageView)
         
         downloadButton = UIButton(type: .system)

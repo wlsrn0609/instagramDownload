@@ -10,7 +10,15 @@ import UIKit
 class MainViewController: UIViewController {
 
     var webView : WebView!
-    var urlString = ""
+    var urlString = "" {
+        willSet(newValue) {
+            toastShow(message: newValue)
+            self.urlLabel.text = newValue
+            self.webView.urlString = newValue
+            self.webView.reloading()
+        }
+    }
+    var urlLabel : UILabel!
     var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
     
     var readButton : UIButton!
@@ -19,9 +27,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let theString = UIPasteboard.general.string {
-            self.urlString = theString
-        }
+        
         
         self.view.backgroundColor = UIColor.white
         
@@ -41,7 +47,14 @@ class MainViewController: UIViewController {
         bottomBar.backgroundColor = UIColor.lightGray
         self.view.addSubview(bottomBar)
         
-        webView = WebView(frame: CGRect(x: 0, y: naviBar.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - naviBar.frame.maxY), urlString: urlString)
+        urlLabel = UILabel(frame: CGRect(x: 0, y: naviBar.frame.maxY, width: SCREEN.WIDTH, height: 30))
+        urlLabel.backgroundColor = UIColor.lightGray
+        urlLabel.textColor = UIColor.white
+        urlLabel.textAlignment = .center
+        urlLabel.font = UIFont.systemFont(ofSize: urlLabel.frame.height * 0.4)
+        self.view.addSubview(urlLabel)
+        
+        webView = WebView(frame: CGRect(x: 0, y: urlLabel.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - urlLabel.frame.maxY), urlString: urlString)
         self.view.addSubview(webView)
         
         readButton = UIButton(frame: bottomBar.bounds)
@@ -54,6 +67,9 @@ class MainViewController: UIViewController {
         naviBar.addSubview(clipBoardButton)
         clipBoardButton.addTarget(self, action: #selector(clipBoardButtonPressed), for: .touchUpInside)
         
+        if let theString = UIPasteboard.general.string {
+            self.urlString = theString
+        }
     }
     
     @objc func readButtonPressed(){
@@ -73,7 +89,6 @@ class MainViewController: UIViewController {
     @objc func clipBoardButtonPressed(){
         if let theString = UIPasteboard.general.string {
             self.urlString = theString
-            self.webView.reloading()
         }
     }
     
