@@ -53,16 +53,17 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
         
         cell.textLabel?.text = urlStrings[indexPath.row]
         print("\(urlStrings[indexPath.row])")
-        if let url = URL(string: urlStrings[indexPath.row]) {
-            OperationQueue.main.addOperation {
-                cell.instaImageView.sd_setImage(with: url) { image, error, type, url in
-                    if let error = error {
-                        cell.textLabel?.text = error.localizedDescription
-                    }
+        Server.postData(urlString: urlStrings[indexPath.row], method: .get, otherInfo: [:]) { kData in
+            if let data = kData {
+                if let instaImage = UIImage(data: data) {
+                    cell.instaImageView.image = instaImage
+                    cell.textLabel?.text = ""
+                    cell.valueLabel.text = "\(instaImage.size.width) x \(instaImage.size.height)"
                 }
-                cell.instaImageView.sd_setImage(with: url, completed: nil)
+                
             }
         }
+        
         
         return cell
     }
@@ -74,14 +75,21 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
 }
 
 class ListViewTableViewCell : UITableViewCell {
+    
     var instaImageView : UIImageView!
+    var valueLabel : UILabel!
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         self.frame = CGRect(x: 0, y: 0, width: SCREEN.WIDTH, height: 100)
         
         instaImageView = UIImageView(frame: CGRect(x: 10, y: 0, width: 100, height: 100))
+        instaImageView.backgroundColor = UIColor.green.withAlphaComponent(0.5)
         self.addSubview(instaImageView)
+        
+        valueLabel = UILabel(frame: CGRect(x: instaImageView.frame.maxX + 10, y: 0, width: SCREEN.WIDTH - (instaImageView.frame.maxX + 10), height: 100))
+        self.addSubview(valueLabel)
         
     }
     

@@ -48,16 +48,18 @@ class WebView: UIView
         readHtmlString {
 //            print("readHtmlString:\($0)")
             self.findImageUrlString(htmlString: $0) { urlStrings in
-                print("urlStrings:\(urlStrings.count)")
+//            self.findImageUrlString(htmlString: sampleString) { urlStrings in
+//                print("urlStrings:\(urlStrings.count)")
                 var urls = [String]()
                 urlStrings.forEach{ urlBlocks in
 //                    print("urlBlocks:\(urlBlocks)")
+                    
                     let originUrls = self.divideUrlString(urlBlock: urlBlocks)
                     originUrls.forEach{url in
                         if url.replacingOccurrences(of: " ", with: "") != "" {
+//                            last = url
                             urls.append(url)
                         }
-//                        print("url:\(url)")
                     }
                 }
                 complete(urls)
@@ -72,13 +74,13 @@ class WebView: UIView
             completionHandler:
                 { (html: Any?, error: Error?) in
                     if let htmlString = html as? String {
+                        print("html:\n\(htmlString)")
                         complete(htmlString)
-//                        htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findStrings in
-//                            findStrings.forEach({findString in print("findString:\(findString)")})
-//                        }
                     }
                 })
     }
+//    https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&amp;_nc_cat=1&amp;_nc_ohc=ED6Ul3JjqvUAX___f1S&amp;tn=NsH84sLPnmKyXZoU&amp;edm=AABBvjUBAAAA&amp;ccb=7-4&amp;oh=90f4c8516425e2225712f35bcff61b8e&amp;oe=6147ACA5&amp;_nc_sid=83d603 640w
+//    https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&amp;_nc_cat=1&amp;_nc_ohc=ED6Ul3JjqvUAX___f1S&amp;tn=NsH84sLPnmKyXZoU&amp;edm=AABBvjUBAAAA&amp;ccb=7-4&amp;oh=90f4c8516425e2225712f35bcff61b8e&amp;oe=6147ACA5&amp;_nc_sid=83d603
     
     func findImageUrlString(htmlString : String, complete:@escaping(_:[String])-> Void){
         htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findStrings in
@@ -97,12 +99,17 @@ class WebView: UIView
             newBlock = newBlock.replacingOccurrences(of: "240w", with: "")
             newBlock = newBlock.replacingOccurrences(of: "320w", with: "")
             newBlock = newBlock.replacingOccurrences(of: "480w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "&amp", with: "")
+            newBlock = newBlock.replacingOccurrences(of: "amp;", with: "")
             newBlock = newBlock.replacingOccurrences(of: ",", with: "")
             return newBlock
         }
     }
-  
+  /*
+     https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&_nc_cat=1&_nc_ohc=ED6Ul3JjqvUAX___f1S&edm=AABBvjUBAAAA&ccb=7-4&oh=d555f98a0ce10757d94f16bbd06e8f17&oe=6147ACA5&_nc_sid=83d603
+     
+     
+     
+     */
     
     //MARK:WKUIDelegate
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {

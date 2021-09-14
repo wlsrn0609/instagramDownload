@@ -40,8 +40,8 @@ class MainViewController: UIViewController {
         self.view.addSubview(bottomBar)
         
         webView = WebView(frame: CGRect(x: 0, y: naviBar.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - naviBar.frame.maxY), urlString: urlString)
-        webView.frame.size.height = 0 // todo remove
-        webView.clipsToBounds = true // todo remove
+//        webView.frame.size.height = 0 // todo remove
+//        webView.clipsToBounds = true // todo remove
         self.view.addSubview(webView)
         
         readButton = UIButton(frame: bottomBar.bounds)
