@@ -43,24 +43,29 @@ class WebView: UIView
         }
     }
     
-    func readImageUrls(complete:@escaping(_:[String])->Void) {
+    func readImageUrls(complete:@escaping(_:[[String:String]])->Void) {
         
         readHtmlString {
 //            print("readHtmlString:\($0)")
             self.findImageUrlString(htmlString: $0) { urlStrings in
 //            self.findImageUrlString(htmlString: sampleString) { urlStrings in
 //                print("urlStrings:\(urlStrings.count)")
-                var urls = [String]()
+                var urls = [[String:String]]()
                 urlStrings.forEach{ urlBlocks in
 //                    print("urlBlocks:\(urlBlocks)")
-                    
                     let originUrls = self.divideUrlString(urlBlock: urlBlocks)
+                    var maxSize = 0
+                    var maxSizeUrl = [String:String]()
                     originUrls.forEach{url in
-                        if url.replacingOccurrences(of: " ", with: "") != "" {
-//                            last = url
-                            urls.append(url)
+                        if url.count != 0,
+                           let sizevalue = url["size"],
+                           let size = Int(sizevalue, radix: 10),
+                           size > maxSize {
+                            maxSize = size
+                            maxSizeUrl = url
                         }
                     }
+                    if maxSizeUrl.count == 2 { urls.append(maxSizeUrl) }
                 }
                 complete(urls)
             }
@@ -88,20 +93,19 @@ class WebView: UIView
         }
     }
     
-    func divideUrlString(urlBlock:String) -> [String] {
-        let blocks = urlBlock.components(separatedBy: " ")
+    func divideUrlString(urlBlock:String) -> [[String:String]] {
+        let blocks = urlBlock.components(separatedBy: ",")
 //        return blocks
-        return blocks.map { block -> String in
-            var newBlock = block.replacingOccurrences(of: "640w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "750w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "1080w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "150w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "240w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "320w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "480w", with: "")
-            newBlock = newBlock.replacingOccurrences(of: "amp;", with: "")
-            newBlock = newBlock.replacingOccurrences(of: ",", with: "")
-            return newBlock
+        return blocks.map { block -> [String:String] in
+            let blockComponent = block.components(separatedBy: " ")
+            if blockComponent.count == 2 {
+                return [
+                    "size":blockComponent[1].replacingOccurrences(of: "w", with: ""),
+                    "url":blockComponent[0].replacingOccurrences(of: "amp;", with: ""),
+                ]
+            }else{
+                return [String:String]()
+            }
         }
     }
   /*

@@ -10,7 +10,7 @@ import SDWebImage
 
 class ListViewController : UIViewController {
     
-    var urlStrings = [String]()
+    var urlStrings = [[String:String]]()
     var tableView : UITableView!
     
     override func viewDidLoad() {
@@ -51,16 +51,17 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ListViewTableViewCell", for: indexPath) as? ListViewTableViewCell else { return UITableViewCell() }
         
-        cell.textLabel?.text = urlStrings[indexPath.row]
-        print("\(urlStrings[indexPath.row])")
-        Server.postData(urlString: urlStrings[indexPath.row], method: .get, otherInfo: [:]) { kData in
-            if let data = kData {
-                if let instaImage = UIImage(data: data) {
-                    cell.instaImageView.image = instaImage
-                    cell.textLabel?.text = ""
-                    cell.valueLabel.text = "\(instaImage.size.width) x \(instaImage.size.height)"
+        let dic = urlStrings[indexPath.row]
+        cell.valueLabel.text = dic["size"]
+        if let url = dic["url"] {
+            Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
+                if let data = kData {
+                    if let instaImage = UIImage(data: data) {
+                        cell.instaImageView.image = instaImage
+                        cell.textLabel?.text = ""
+                    }
+                    
                 }
-                
             }
         }
         
