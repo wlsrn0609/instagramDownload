@@ -1,0 +1,94 @@
+PODS:
+  - Alamofire (4.9.1)
+  - Differentiator (4.0.1)
+  - FLAnimatedImage (1.0.16)
+  - FontAwesome.swift (1.9.1)
+  - KeychainSwift (13.0.0)
+  - MBProgressHUD (1.2.0)
+  - "NSObject+Rx (5.1.0)":
+    - RxSwift (~> 5.1)
+  - RxAlamofire (5.1.0):
+    - RxAlamofire/Core (= 5.1.0)
+  - RxAlamofire/Core (5.1.0):
+    - Alamofire (~> 4.8)
+    - RxSwift (~> 5.0)
+  - RxCocoa (5.1.1):
+    - RxRelay (~> 5)
+    - RxSwift (~> 5)
+  - RxDataSources (4.0.1):
+    - Differentiator (~> 4.0)
+    - RxCocoa (~> 5.0)
+    - RxSwift (~> 5.0)
+  - RxRelay (5.1.3):
+    - RxSwift (~> 5)
+  - RxSwift (5.1.1)
+  - SDWebImage (4.4.8):
+    - SDWebImage/Core (= 4.4.8)
+  - SDWebImage/Core (4.4.8)
+  - SDWebImage/GIF (4.4.8):
+    - FLAnimatedImage (~> 1.0)
+    - SDWebImage/Core
+  - SnapKit (5.0.1)
+  - Then (2.7.0)
+  - Toaster (2.3.0)
+  - TUSafariActivity (1.0.4)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.7)
+  - FontAwesome.swift (= 1.9.1)
+  - KeychainSwift (~> 13.0)
+  - MBProgressHUD (~> 1.2.0)
+  - "NSObject+Rx (= 5.1.0)"
+  - RxAlamofire (= 5.1.0)
+  - RxCocoa (= 5.1.1)
+  - RxDataSources (= 4.0.1)
+  - RxSwift (= 5.1.1)
+  - SDWebImage (~> 4.0)
+  - SDWebImage/GIF (= 4.4.8)
+  - SnapKit (~> 5.0.0)
+  - Then (= 2.7.0)
+  - Toaster (= 2.3.0)
+  - TUSafariActivity (~> 1.0)
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - Differentiator
+    - FLAnimatedImage
+    - FontAwesome.swift
+    - KeychainSwift
+    - MBProgressHUD
+    - "NSObject+Rx"
+    - RxAlamofire
+    - RxCocoa
+    - RxDataSources
+    - RxRelay
+    - RxSwift
+    - SDWebImage
+    - SnapKit
+    - Then
+    - Toaster
+    - TUSafariActivity
+
+SPEC CHECKSUMS:
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Differentiator: 886080237d9f87f322641dedbc5be257061b0602
+  FLAnimatedImage: 8f3e854ebf9680b71f0b6e700939687fc4d82b4b
+  FontAwesome.swift: 6b52cb7be66eacd28cbfaa0ca7ffd0de4a186a1d
+  KeychainSwift: 23d6c16cbc33f20fafa30c3d783241b4b87d998c
+  MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
+  "NSObject+Rx": fa6bbcc1ab1faa06b01466bc09b1e0692bbc5946
+  RxAlamofire: a2d7621de4c23a0c6e7b476b504acc32838ee341
+  RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
+  RxDataSources: efee07fa4de48477eca0a4611e6d11e2da9c1114
+  RxRelay: 5a18c2eb2d68326ebaf0112f80d837ae41b92b97
+  RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
+  SDWebImage: 783af2c3fa36291a250030c4752ee370a9a51d13
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  Then: acfe0be7e98221c6204e12f8161459606d5d822d
+  Toaster: c3473963c78e8cabbf6ea6f11ad0fdaae6f54987
+  TUSafariActivity: afc55a00965377939107ce4fdc7f951f62454546
+
+PODFILE CHECKSUM: 9b1585c5b9b2cf560b398d1036e60b209e2cc3b4
+
+COCOAPODS: 1.10.1
