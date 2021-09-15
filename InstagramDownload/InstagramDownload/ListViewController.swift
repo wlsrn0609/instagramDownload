@@ -80,7 +80,7 @@ extension ListViewController : ListViewTableViewCellDelegate {
     
     func downloadButtonPressed(image: UIImage?) {
         if let image = image {
-            print("downloadButtonPressed:\(image.size)") 
+            print("downloadButtonPressed:\(image.size)")
             UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
     }
@@ -120,6 +120,7 @@ class ListViewTableViewCell : UITableViewCell {
         self.selectionStyle = .none
         
         instaImageView = UIImageView(frame: CGRect(x: 10, y: 0, width: 100, height: 100))
+        instaImageView.contentMode = .scaleAspectFit
         self.contentView.addSubview(instaImageView)
         
         downloadButton = UIButton(type: .system)
