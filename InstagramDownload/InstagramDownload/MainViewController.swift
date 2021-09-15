@@ -56,8 +56,6 @@ class MainViewController: UIViewController {
         
         webView = WebView(frame: CGRect(x: 0, y: urlLabel.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - urlLabel.frame.maxY), urlString: urlString)
         self.view.addSubview(webView)
-        webView.frame.size.height = 0 //todo remove
-        webView.clipsToBounds = true //todo remove
         
         readButton = UIButton(frame: bottomBar.bounds)
         readButton.setTitle("Read", for: .normal)
@@ -69,12 +67,10 @@ class MainViewController: UIViewController {
         naviBar.addSubview(clipBoardButton)
         clipBoardButton.addTarget(self, action: #selector(clipBoardButtonPressed), for: .touchUpInside)
         
-//        if let theString = UIPasteboard.general.string {
-//            self.urlString = theString
-//        }
+        if let theString = UIPasteboard.general.string {
+            self.urlString = theString
+        }
         
-        //todo removeTest
-        self.urlString = testUrlString
     }
     
     @objc func readButtonPressed(){
