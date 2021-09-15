@@ -59,8 +59,7 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
             Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
                 if let data = kData {
                     if let instaImage = UIImage(data: data) {
-                        cell.instaImageView.image = instaImage
-                        cell.textLabel?.text = ""
+                        cell.setImage(image: instaImage)
                     }
                     
                 }
@@ -81,6 +80,7 @@ extension ListViewController : ListViewTableViewCellDelegate {
     
     func downloadButtonPressed(image: UIImage?) {
         if let image = image {
+            print("downloadButtonPressed:\(image.size)") 
             UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
     }
@@ -89,7 +89,10 @@ extension ListViewController : ListViewTableViewCellDelegate {
         if let error = error{
             print("save image fail \(error.localizedDescription)")
         }else{
-            toastShow(message: "Complete.")
+            let alertCon = UIAlertController(title: "안내", message: "저장되었습니다", preferredStyle: .alert)
+            alertCon.addAction(UIAlertAction(title: "확인", style: .cancel, handler: {_ in}))
+            self.present(alertCon, animated: true, completion: {})
+//            toastShow(message: "Complete.")
         }
     }
 }
@@ -107,6 +110,8 @@ class ListViewTableViewCell : UITableViewCell {
     var index = 0
     var delegate : ListViewTableViewCellDelegate?
     
+    var instaImage : UIImage?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -118,24 +123,39 @@ class ListViewTableViewCell : UITableViewCell {
         self.contentView.addSubview(instaImageView)
         
         downloadButton = UIButton(type: .system)
-        downloadButton.frame = CGRect(x: SCREEN.WIDTH - 60, y: 0, width: 50, height: 30)
+        downloadButton.frame = CGRect(x: SCREEN.WIDTH - 85, y: 0, width: 80, height: 35)
         downloadButton.center.y = 50
-        downloadButton.setTitle("다운", for: .normal)
+        downloadButton.setTitle("download", for: .normal)
+        downloadButton.setTitleColor(UIColor.gray, for: .normal)
         downloadButton.addTarget(self, action: #selector(downloadButtonPressed), for: .touchUpInside)
         downloadButton.layer.cornerRadius = downloadButton.frame.size.height / 2
-        downloadButton.setTitleColor(UIColor.black, for: .normal)
         downloadButton.layer.borderWidth = 0.5
-        downloadButton.layer.borderColor = UIColor.black.cgColor
+        downloadButton.layer.borderColor = UIColor.gray.cgColor
         self.contentView.addSubview(downloadButton)
         
         valueLabel = UILabel(frame: CGRect(x: instaImageView.frame.maxX + 10, y: 0, width: downloadButton.frame.minX - (instaImageView.frame.maxX + 10), height: 100))
+        valueLabel.textColor = UIColor.darkGray
         self.contentView.addSubview(valueLabel)
         
     }
     
     @objc func downloadButtonPressed(){
         print("downloadButtonPressed")
-        self.delegate?.downloadButtonPressed?(image: self.instaImageView.image)
+        self.delegate?.downloadButtonPressed?(image: self.instaImage)
+    }
+    
+    func setImage(image:UIImage?){
+        guard let image = image else { return }
+        
+        self.instaImage = image
+        self.valueLabel.text = "\(Int(image.size.width)) x \(Int(image.size.height))"
+        print("setImageA:\(image.size)")
+        
+        image.downSample(pointSize: self.instaImageView.frame.size, complete: {
+            self.instaImageView.image = $0
+            print("setImageB:\(String(describing: $0?.size))")
+            
+        })
     }
     
     required init?(coder: NSCoder) {

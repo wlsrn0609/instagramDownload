@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4E7557FB39E02F54CE8377F6 /* Pods_InstagramDownload.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9126BBD345CDEDAC91A675DD /* Pods_InstagramDownload.framework */; };
+		788D3F4826F1D89F00AFA91F /* downSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 788D3F4726F1D89F00AFA91F /* downSample.swift */; };
 		78E1134F26F058D1007678AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1134E26F058D1007678AA /* AppDelegate.swift */; };
 		78E1135326F058D1007678AA /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1135226F058D1007678AA /* MainViewController.swift */; };
 		78E1135626F058D1007678AA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78E1135426F058D1007678AA /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		788D3F4726F1D89F00AFA91F /* downSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = downSample.swift; sourceTree = "<group>"; };
 		78E1134B26F058D1007678AA /* InstagramDownload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstagramDownload.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78E1134E26F058D1007678AA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		78E1135226F058D1007678AA /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 				78E1136526F05E93007678AA /* Define.swift */,
 				78E1136726F05F0E007678AA /* Toast.swift */,
 				78E1136D26F079CA007678AA /* Server.swift */,
+				788D3F4726F1D89F00AFA91F /* downSample.swift */,
 				78E1135426F058D1007678AA /* Main.storyboard */,
 				78E1135726F058D3007678AA /* Assets.xcassets */,
 				78E1135926F058D3007678AA /* LaunchScreen.storyboard */,
@@ -230,6 +233,7 @@
 				78E1136626F05E93007678AA /* Define.swift in Sources */,
 				78E1134F26F058D1007678AA /* AppDelegate.swift in Sources */,
 				78E1136A26F06432007678AA /* FindString.swift in Sources */,
+				788D3F4826F1D89F00AFA91F /* downSample.swift in Sources */,
 				78E1136E26F079CA007678AA /* Server.swift in Sources */,
 				78E1136C26F07151007678AA /* ListViewController.swift in Sources */,
 			);
