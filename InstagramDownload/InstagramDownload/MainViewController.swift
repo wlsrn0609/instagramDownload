@@ -19,9 +19,12 @@ class MainViewController: UIViewController {
         }
     }
     var urlLabel : UILabel!
-    var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
+//    var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
+    var testUrlString = "https://www.instagram.com/reel/CTTIJ0-gLda/?utm_medium=share_sheet"
     
     var readButton : UIButton!
+    var readMp4Button : UIButton!
+    
     var clipBoardButton : UIButton!
     
     override func viewDidLoad() {
@@ -58,9 +61,17 @@ class MainViewController: UIViewController {
         self.view.addSubview(webView)
         
         readButton = UIButton(frame: bottomBar.bounds)
-        readButton.setTitle("Read", for: .normal)
+        readButton.frame.size.width *= 0.5
+        readButton.setTitle("image", for: .normal)
         bottomBar.addSubview(readButton)
         readButton.addTarget(self, action: #selector(readButtonPressed), for: .touchUpInside)
+        
+        readMp4Button = UIButton(frame: bottomBar.bounds)
+        readMp4Button.frame.size.width *= 0.5
+        readMp4Button.frame.origin.x = readButton.frame.maxX
+        readMp4Button.setTitle("mp4", for: .normal)
+        bottomBar.addSubview(readMp4Button)
+        readMp4Button.addTarget(self, action: #selector(readMp4ButtonPressed), for: .touchUpInside)
         
         clipBoardButton = UIButton(frame: naviBar.bounds)
         clipBoardButton.setTitle("클립보드에서 붙여넣기", for: .normal)
@@ -71,14 +82,33 @@ class MainViewController: UIViewController {
             self.urlString = theString
         }
         
+//        //todo remove test
+//        self.urlString = testUrlString
     }
     
     @objc func readButtonPressed(){
         webView.readImageUrls {
             let listVC = ListViewController()
             listVC.modalPresentationStyle = .fullScreen
-            listVC.urlStrings = $0
-            print("listVC.urlStrings:\(listVC.urlStrings)")
+            listVC.urlInfos = $0
+            print("listVC.urlStrings:\(listVC.urlInfos)")
+            DispatchQueue.main.async {
+                self.present(listVC, animated: true) {}
+            }
+            
+        }
+        
+    }
+    
+    @objc func readMp4ButtonPressed(){
+        
+        webView.readMp4Urls {
+            print("readMp4Urls:\($0)")
+            let listVC = ListViewController()
+            listVC.modalPresentationStyle = .fullScreen
+            listVC.urlInfos = $0
+            listVC.type = .mp4
+            print("listVC.urlStrings:\(listVC.urlInfos)")
             DispatchQueue.main.async {
                 self.present(listVC, animated: true) {}
             }

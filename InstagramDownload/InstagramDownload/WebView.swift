@@ -43,77 +43,7 @@ class WebView: UIView
         }
     }
     
-    func readImageUrls(complete:@escaping(_:[[String:String]])->Void) {
-        
-        readHtmlString {
-//            print("readHtmlString:\($0)")
-            self.findImageUrlString(htmlString: $0) { urlStrings in
-//            self.findImageUrlString(htmlString: sampleString) { urlStrings in
-//                print("urlStrings:\(urlStrings.count)")
-                var urls = [[String:String]]()
-                urlStrings.forEach{ urlBlocks in
-//                    print("urlBlocks:\(urlBlocks)")
-                    let originUrls = self.divideUrlString(urlBlock: urlBlocks)
-                    var maxSize = 0
-                    var maxSizeUrl = [String:String]()
-                    originUrls.forEach{url in
-                        if url.count != 0,
-                           let sizevalue = url["size"],
-                           let size = Int(sizevalue, radix: 10),
-                           size > maxSize {
-                            maxSize = size
-                            maxSizeUrl = url
-                        }
-                    }
-                    if maxSizeUrl.count == 2 { urls.append(maxSizeUrl) }
-                }
-                complete(urls)
-            }
-        }
-        
-    }
     
-    func readHtmlString(complete:@escaping(_:String)->Void){
-        wkWebView.evaluateJavaScript(
-            "document.documentElement.outerHTML.toString()",
-            completionHandler:
-                { (html: Any?, error: Error?) in
-                    if let htmlString = html as? String {
-                        print("html:\n\(htmlString)")
-                        complete(htmlString)
-                    }
-                })
-    }
-//    https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&amp;_nc_cat=1&amp;_nc_ohc=ED6Ul3JjqvUAX___f1S&amp;tn=NsH84sLPnmKyXZoU&amp;edm=AABBvjUBAAAA&amp;ccb=7-4&amp;oh=90f4c8516425e2225712f35bcff61b8e&amp;oe=6147ACA5&amp;_nc_sid=83d603 640w
-//    https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&amp;_nc_cat=1&amp;_nc_ohc=ED6Ul3JjqvUAX___f1S&amp;tn=NsH84sLPnmKyXZoU&amp;edm=AABBvjUBAAAA&amp;ccb=7-4&amp;oh=90f4c8516425e2225712f35bcff61b8e&amp;oe=6147ACA5&amp;_nc_sid=83d603
-    
-    func findImageUrlString(htmlString : String, complete:@escaping(_:[String])-> Void){
-        htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findStrings in
-            complete(findStrings)
-        }
-    }
-    
-    func divideUrlString(urlBlock:String) -> [[String:String]] {
-        let blocks = urlBlock.components(separatedBy: ",")
-//        return blocks
-        return blocks.map { block -> [String:String] in
-            let blockComponent = block.components(separatedBy: " ")
-            if blockComponent.count == 2 {
-                return [
-                    "size":blockComponent[1].replacingOccurrences(of: "w", with: ""),
-                    "url":blockComponent[0].replacingOccurrences(of: "amp;", with: ""),
-                ]
-            }else{
-                return [String:String]()
-            }
-        }
-    }
-  /*
-     https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/sh0.08/e35/s640x640/241700777_929174931062470_961596759477656433_n.jpg?_nc_ht=scontent-gmp1-1.cdninstagram.com&_nc_cat=1&_nc_ohc=ED6Ul3JjqvUAX___f1S&edm=AABBvjUBAAAA&ccb=7-4&oh=d555f98a0ce10757d94f16bbd06e8f17&oe=6147ACA5&_nc_sid=83d603
-     
-     
-     
-     */
     
     //MARK:WKUIDelegate
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {

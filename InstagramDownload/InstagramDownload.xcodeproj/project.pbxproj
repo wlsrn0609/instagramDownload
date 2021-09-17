@@ -20,7 +20,9 @@
 		78E1136A26F06432007678AA /* FindString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1136926F06432007678AA /* FindString.swift */; };
 		78E1136C26F07151007678AA /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1136B26F07151007678AA /* ListViewController.swift */; };
 		78E1136E26F079CA007678AA /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1136D26F079CA007678AA /* Server.swift */; };
-		78E1137026F07F05007678AA /* temp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1136F26F07F05007678AA /* temp.swift */; };
+		7EE33A8726F459DF000AD3AA /* SaveVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE33A8626F459DF000AD3AA /* SaveVideo.swift */; };
+		7EE33A8926F4611C000AD3AA /* WebView+imageurls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE33A8826F4611C000AD3AA /* WebView+imageurls.swift */; };
+		7EE33A8B26F47C7E000AD3AA /* Extenstion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE33A8A26F47C7E000AD3AA /* Extenstion.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,11 @@
 		78E1136B26F07151007678AA /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		78E1136D26F079CA007678AA /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
 		78E1136F26F07F05007678AA /* temp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = temp.swift; sourceTree = "<group>"; };
+		7EA8DC5326F450DB00E76BB4 /* temp2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = temp2.swift; sourceTree = "<group>"; };
+		7EE33A8426F4586B000AD3AA /* temp3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = temp3.swift; sourceTree = "<group>"; };
+		7EE33A8626F459DF000AD3AA /* SaveVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveVideo.swift; sourceTree = "<group>"; };
+		7EE33A8826F4611C000AD3AA /* WebView+imageurls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebView+imageurls.swift"; sourceTree = "<group>"; };
+		7EE33A8A26F47C7E000AD3AA /* Extenstion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extenstion.swift; sourceTree = "<group>"; };
 		9126BBD345CDEDAC91A675DD /* Pods_InstagramDownload.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_InstagramDownload.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		914AB2B42F5F1A0CC57C427E /* Pods-InstagramDownload.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InstagramDownload.release.xcconfig"; path = "Target Support Files/Pods-InstagramDownload/Pods-InstagramDownload.release.xcconfig"; sourceTree = "<group>"; };
 		9B6CC776C4CCAF2B72426789 /* Pods-InstagramDownload.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-InstagramDownload.debug.xcconfig"; path = "Target Support Files/Pods-InstagramDownload/Pods-InstagramDownload.debug.xcconfig"; sourceTree = "<group>"; };
@@ -81,11 +88,16 @@
 				78E1135226F058D1007678AA /* MainViewController.swift */,
 				78E1136B26F07151007678AA /* ListViewController.swift */,
 				78E1136226F05BA1007678AA /* WebView.swift */,
+				7EE33A8826F4611C000AD3AA /* WebView+imageurls.swift */,
 				78E1136F26F07F05007678AA /* temp.swift */,
+				7EA8DC5326F450DB00E76BB4 /* temp2.swift */,
+				7EE33A8426F4586B000AD3AA /* temp3.swift */,
+				7EE33A8626F459DF000AD3AA /* SaveVideo.swift */,
 				78E1136926F06432007678AA /* FindString.swift */,
 				78E1136526F05E93007678AA /* Define.swift */,
 				78E1136726F05F0E007678AA /* Toast.swift */,
 				78E1136D26F079CA007678AA /* Server.swift */,
+				7EE33A8A26F47C7E000AD3AA /* Extenstion.swift */,
 				788D3F4726F1D89F00AFA91F /* downSample.swift */,
 				78E1135426F058D1007678AA /* Main.storyboard */,
 				78E1135726F058D3007678AA /* Assets.xcassets */,
@@ -226,13 +238,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7EE33A8B26F47C7E000AD3AA /* Extenstion.swift in Sources */,
 				78E1136326F05BA1007678AA /* WebView.swift in Sources */,
 				78E1135326F058D1007678AA /* MainViewController.swift in Sources */,
-				78E1137026F07F05007678AA /* temp.swift in Sources */,
+				7EE33A8926F4611C000AD3AA /* WebView+imageurls.swift in Sources */,
 				78E1136826F05F0E007678AA /* Toast.swift in Sources */,
 				78E1136626F05E93007678AA /* Define.swift in Sources */,
 				78E1134F26F058D1007678AA /* AppDelegate.swift in Sources */,
 				78E1136A26F06432007678AA /* FindString.swift in Sources */,
+				7EE33A8726F459DF000AD3AA /* SaveVideo.swift in Sources */,
 				788D3F4826F1D89F00AFA91F /* downSample.swift in Sources */,
 				78E1136E26F079CA007678AA /* Server.swift in Sources */,
 				78E1136C26F07151007678AA /* ListViewController.swift in Sources */,
