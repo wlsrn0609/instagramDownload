@@ -88,7 +88,7 @@ class MainViewController: UIViewController {
         }
         
 //        //todo remove test
-        self.urlString = testUrlString2
+//        self.urlString = testUrlString2
     }
     
     @objc func readButtonPressed(){
