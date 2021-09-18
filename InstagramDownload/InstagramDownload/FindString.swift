@@ -9,7 +9,7 @@ import Foundation
 
 extension String {
     func findString(from:String, to:String, lastIndex kLastIndex:Index? = nil, strings kStrings: [String], complete:(([String]) -> Void)) {
-        
+        //todo 못찾아도 complete가 일어나는지 확인이 필요하다
         var lastIndex = kLastIndex ?? startIndex
         var findStrings = kStrings
         
@@ -19,13 +19,14 @@ extension String {
                 return String(self[substringFrom..<substringTo])
             }
         }) {
-            print("findString:\(findString)")
+//            print("findString:\(findString)")
             findStrings.append(findString)
             if lastIndex < endIndex {
                 self.findString(from: from, to: to, lastIndex: lastIndex, strings: findStrings, complete: complete)
                 return
             }
         }
+//        print("findString complete")
         complete(findStrings)
     }
 }

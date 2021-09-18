@@ -5,9 +5,128 @@
 //  Created by JinGu on 2021/09/17.
 //
 
-import Foundation
+import UIKit
+import WebKit
+
+struct Content {
+    
+    enum ContentType : String {
+        case image
+        case video
+    }
+    
+    var type : ContentType
+    
+    //공통
+    var imageURL : String //이미지(video의 경우 썸네일) 주소이기때문에 not nil
+    var image : UIImage? //이미지를 받기 전에는 nil
+    
+    //type image
+    var imageSize : String?
+    
+    //type video
+    var videoURL : String?
+    
+    static func readContents(wkWebView:WKWebView, complete:@escaping(_:[Content])->Void) {
+        Self.readHtmlString(wkWebView: wkWebView) { htmlString in
+            Self.findContents(htmlString: htmlString) { complete($0) }
+        }
+    }
+    
+    static func readHtmlString(wkWebView:WKWebView, complete:@escaping(_:String)->Void){
+        wkWebView.evaluateJavaScript(
+            "document.documentElement.outerHTML.toString()",
+            completionHandler:
+                { (html: Any?, error: Error?) in
+                    if let htmlString = html as? String {
+                        complete(htmlString)
+                    }
+                })
+    }
+    
+    static func findContents(htmlString : String, complete:@escaping(_:[Content])-> Void){
+        
+        var contents = [Content]()
+        
+        Self.findImageContent(htmlString: htmlString) {
+            contents += $0
+            self.findVideoContent(htmlString: htmlString) {
+                contents += $0
+                complete(contents)
+            }
+        }
+        
+    }
+    
+    static func findImageContent(htmlString : String, complete:@escaping(_:[Content])-> Void){
+        
+        var contents = [Content]()
+        
+        htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findImageUrlStrings in
+            //여러개의 이미지 주소쌍이 나온다
+            //"주소 1080w,주소 1080w,주소 1080w" 형태
+            
+            findImageUrlStrings.forEach{ imageUrlString in
+                var maxSize = 0
+                var maxSizeUrl = ""
+                let imageUrls = imageUrlString.components(separatedBy: ",")
+                imageUrls.forEach { imageUrl in
+                    let urlBlocks = imageUrl.components(separatedBy: " ")
+                    if urlBlocks.count == 2 {
+                        let sizeString = urlBlocks[1].replacingOccurrences(of: "w", with: "")
+                        if let sizeValue = Int(sizeString, radix: 10), sizeValue > maxSize {
+                            maxSize = sizeValue
+                            maxSizeUrl = urlBlocks[0].replacingOccurrences(of: "amp;", with: "")
+                        }
+                    }
+                }
+                contents.append(Content(type: .image, imageURL: maxSizeUrl, imageSize: "\(maxSize)"))
+            }
+            complete(contents)
+        }
+    }
+    
+    static func findVideoContent(htmlString : String, complete:@escaping(_:[Content])-> Void){
+        
+        var contents = [Content]()
+        
+        htmlString.findString(from: "type=\"video/mp4\" ", to: "></div>", strings: []) {
+            findVideoUrlStrings in
+            /*
+             형태
+             src="video url" src="thumnail url"
+             */
+            
+            if findVideoUrlStrings.count == 0 { complete(contents); return }
+            
+            var count = findVideoUrlStrings.count
+            findVideoUrlStrings.forEach { findVideoUrlString in
+                findVideoUrlString.findString(from: "src=\"", to: "\"", strings: []) { urls in
+                    if urls.count == 2 {
+                        contents.append(Content(type: .video, imageURL: urls[1].replacingOccurrences(of: "amp;", with: ""), videoURL: urls[0].replacingOccurrences(of: "amp;", with: "")))
+                    }
+                    count -= 1 //못 찾더라도 클로저가 실행된다는 가정이 포함되어있다
+                    if count <= 0 {
+                        complete(contents) //todo modify
+                    }
+                }
+            }
+        }
+        
+    }
+}
 
 extension WebView {
+    
+    func readContents(complete:@escaping(_:[Content])->Void) {
+        readHtmlString { htmlString in
+            
+        }
+    }
+    
+    func findUrlString(htmlString:String, complete:@escaping(_:[String])-> Void) {
+        
+    }
 
     func readMp4Urls(complete:@escaping(_:[[String:Any]])->Void) {
 
@@ -86,7 +205,7 @@ extension WebView {
                     }
                 })
     }
-    
+    //?/
     func findImageUrlString(htmlString : String, complete:@escaping(_:[String])-> Void){
         htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findStrings in
             complete(findStrings)

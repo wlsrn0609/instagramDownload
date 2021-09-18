@@ -19,19 +19,18 @@ class MainViewController: UIViewController {
         }
     }
     var urlLabel : UILabel!
-//    var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
-    var testUrlString = "https://www.instagram.com/reel/CTTIJ0-gLda/?utm_medium=share_sheet"
+    var testUrlString = "https://www.instagram.com/p/CTvoo7EJbpg/?utm_medium=copy_link"
+    var testUrlString2 = "https://www.instagram.com/reel/CTTIJ0-gLda/?utm_medium=share_sheet"
     
     var readButton : UIButton!
+    var readImageButton : UIButton!
     var readMp4Button : UIButton!
     
     var clipBoardButton : UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        
-        
+    
         self.view.backgroundColor = UIColor.white
         
         let statusBar = UIView(frame: CGRect(x: 0, y: 0, width: SCREEN.WIDTH, height: STATUS_BAR_HEIGHT))
@@ -57,21 +56,27 @@ class MainViewController: UIViewController {
         urlLabel.font = UIFont.systemFont(ofSize: urlLabel.frame.height * 0.4)
         self.view.addSubview(urlLabel)
         
-        webView = WebView(frame: CGRect(x: 0, y: urlLabel.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - urlLabel.frame.maxY), urlString: urlString)
+        webView = WebView(frame: CGRect(x: 0, y: urlLabel.frame.maxY, width: SCREEN.WIDTH, height: bottomBar.frame.minY - urlLabel.frame.maxY))
+        webView.delegate = self
         self.view.addSubview(webView)
         
         readButton = UIButton(frame: bottomBar.bounds)
-        readButton.frame.size.width *= 0.5
-        readButton.setTitle("image", for: .normal)
+        readButton.setTitle("Read", for: .normal)
         bottomBar.addSubview(readButton)
         readButton.addTarget(self, action: #selector(readButtonPressed), for: .touchUpInside)
         
-        readMp4Button = UIButton(frame: bottomBar.bounds)
-        readMp4Button.frame.size.width *= 0.5
-        readMp4Button.frame.origin.x = readButton.frame.maxX
-        readMp4Button.setTitle("mp4", for: .normal)
-        bottomBar.addSubview(readMp4Button)
-        readMp4Button.addTarget(self, action: #selector(readMp4ButtonPressed), for: .touchUpInside)
+//        readImageButton = UIButton(frame: bottomBar.bounds)
+//        readImageButton.frame.size.width *= 0.5
+//        readImageButton.setTitle("image", for: .normal)
+//        bottomBar.addSubview(readImageButton)
+//        readImageButton.addTarget(self, action: #selector(readImageButtonPressed), for: .touchUpInside)
+//
+//        readMp4Button = UIButton(frame: bottomBar.bounds)
+//        readMp4Button.frame.size.width *= 0.5
+//        readMp4Button.frame.origin.x = readButton.frame.maxX
+//        readMp4Button.setTitle("mp4", for: .normal)
+//        bottomBar.addSubview(readMp4Button)
+//        readMp4Button.addTarget(self, action: #selector(readMp4ButtonPressed), for: .touchUpInside)
         
         clipBoardButton = UIButton(frame: naviBar.bounds)
         clipBoardButton.setTitle("클립보드에서 붙여넣기", for: .normal)
@@ -83,20 +88,36 @@ class MainViewController: UIViewController {
         }
         
 //        //todo remove test
-//        self.urlString = testUrlString
+        self.urlString = testUrlString2
     }
     
     @objc func readButtonPressed(){
-        webView.readImageUrls {
-            let listVC = ListViewController()
-            listVC.modalPresentationStyle = .fullScreen
-            listVC.urlInfos = $0
-            print("listVC.urlStrings:\(listVC.urlInfos)")
-            DispatchQueue.main.async {
-                self.present(listVC, animated: true) {}
-            }
+        Content.readContents(wkWebView: self.webView.wkWebView) { contents in
             
+            if contents.count > 0 {
+                let listVC = ListViewController()
+                listVC.modalPresentationStyle = .fullScreen
+                listVC.contents = contents
+                DispatchQueue.main.async {
+                    self.present(listVC, animated: true) {}
+                }
+            }else{
+                toastShow(message: "콘텐츠를 찾을 수가 없습니다")
+            }
         }
+    }
+    
+    @objc func readImageButtonPressed(){
+//        webView.readImageUrls {
+//            let listVC = ListViewController()
+//            listVC.modalPresentationStyle = .fullScreen
+//            listVC.urlInfos = $0
+//            print("listVC.urlStrings:\(listVC.urlInfos)")
+//            DispatchQueue.main.async {
+//                self.present(listVC, animated: true) {}
+//            }
+//
+//        }
         
     }
     
@@ -104,14 +125,14 @@ class MainViewController: UIViewController {
         
         webView.readMp4Urls {
             print("readMp4Urls:\($0)")
-            let listVC = ListViewController()
-            listVC.modalPresentationStyle = .fullScreen
-            listVC.urlInfos = $0
-            listVC.type = .mp4
-            print("listVC.urlStrings:\(listVC.urlInfos)")
-            DispatchQueue.main.async {
-                self.present(listVC, animated: true) {}
-            }
+//            let listVC = ListViewController()
+//            listVC.modalPresentationStyle = .fullScreen
+//            listVC.urlInfos = $0
+//            listVC.type = .mp4
+//            print("listVC.urlStrings:\(listVC.urlInfos)")
+//            DispatchQueue.main.async {
+//                self.present(listVC, animated: true) {}
+//            }
             
         }
         
@@ -127,3 +148,9 @@ class MainViewController: UIViewController {
 
 }
 
+
+extension MainViewController : WebViewDelegate {
+    func didFinishLoad() {
+        self.readButtonPressed()
+    }
+}

@@ -22,6 +22,8 @@
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>need access Album for photo download</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>need use Album for photo download</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

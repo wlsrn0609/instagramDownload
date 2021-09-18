@@ -8,6 +8,19 @@
 import UIKit
 import MBProgressHUD
 
+//MARK: CGRect
+extension CGRect {
+    init(center : CGPoint, size : CGSize) {
+        let originX = center.x - (size.width / 2)
+        let originY = center.y - (size.height / 2)
+        self.init(origin: CGPoint(x: originX, y: originY), size: size)
+    }
+    
+    var center : CGPoint {
+        return CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+    }
+}
+
 extension AppDelegate {
     //MARK:about MBProgressHUD
     

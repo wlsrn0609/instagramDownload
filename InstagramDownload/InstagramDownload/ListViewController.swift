@@ -7,6 +7,7 @@
 
 import UIKit
 import SDWebImage
+import FontAwesome_swift
 
 enum ContentType : String {
     case image = "image"
@@ -15,10 +16,9 @@ enum ContentType : String {
 
 class ListViewController : UIViewController {
     
-    var urlInfos = [[String:Any]]()
     var tableView : UITableView!
 
-    var type:ContentType = .image
+    var contents = [Content]()
     
     override func viewDidLoad() {
         
@@ -52,43 +52,35 @@ class ListViewController : UIViewController {
 
 extension ListViewController : UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        urlInfos.count
+        contents.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ListViewTableViewCell", for: indexPath) as? ListViewTableViewCell else { return UITableViewCell() }
         
         cell.index = indexPath.row
-        cell.type = self.type
         cell.delegate = self
-        urlInfos[indexPath.row]["type"] = self.type.rawValue
-        let dic = urlInfos[indexPath.row]
         
-        if self.type == .image {
-            cell.valueLabel.text = dic["size"] as? String
-            if let url = dic["url"] as? String {
-                Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
-                    if let data = kData {
-                        if let instaImage = UIImage(data: data) {
-                            self.urlInfos[indexPath.row]["image"] = instaImage
-                            cell.setImage(image: instaImage)
-                            cell.valueLabel.text = "\(dic["size"] ?? "")w " + "\(Int(instaImage.size.width)) x \(Int(instaImage.size.height))"
-                        }
-                        
-                    }
-                }
-            }
+        var content = contents[indexPath.row]
+        
+        if content.type == .image {
+            cell.typeImageView.image = UIImage.fontAwesomeIcon(name: .image, style: .solid, textColor: .black.withAlphaComponent(0.3), size: cell.typeImageView.frame.size)
+//            cell.downloadButton.setImage(UIImage.fontAwesomeIcon(name: .image, style: .solid, textColor: UIColor.lightGray.withAlphaComponent(0.7), size: CGSize(width: 50, height: 50)), for: .normal)
+        }else{
+            cell.typeImageView.image = UIImage.fontAwesomeIcon(name: .video, style: .solid, textColor: .black.withAlphaComponent(0.3), size: cell.typeImageView.frame.size)
+//            cell.downloadButton.setImage(UIImage.fontAwesomeIcon(name: .video, style: .solid, textColor: UIColor.lightGray.withAlphaComponent(0.7), size: CGSize(width: 50, height: 50)), for: .normal)
         }
-        if self.type == .mp4 {
-            if let url = dic["thumnail"] as? String {
-                Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
-                    if let data = kData {
-                        if let instaImage = UIImage(data: data) {
-                            cell.setImage(image: instaImage)
-                            cell.valueLabel.text = "\(dic["size"] ?? "")w " + "\(Int(instaImage.size.width)) x \(Int(instaImage.size.height))"
-                        }
-                        
-                    }
+        
+//        cell.valueLabel.text = content.type.rawValue
+        let url = content.imageURL
+        Server.postData(urlString: url, method: .get, otherInfo: [:]) { kData in
+            if let data = kData {
+                if let instaImage = UIImage(data: data) {
+                    content.image = instaImage
+                    self.contents[indexPath.row] = content
+                    
+                    cell.setImage(image: instaImage)
+                    cell.valueLabel.text = "\(content.imageSize ?? "") " + "\(Int(instaImage.size.width)) x \(Int(instaImage.size.height))"
                 }
             }
         }
@@ -104,15 +96,17 @@ extension ListViewController : UITableViewDataSource, UITableViewDelegate {
 extension ListViewController : ListViewTableViewCellDelegate {
     
     func downloadButtonPressed(index: Int) {
-        let dic = urlInfos[index]
-        if let typeString = dic["type"] as? String, typeString == "image" {
-            if let image = dic["image"] as? UIImage {
-                UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
+        
+        let content = contents[index]
+        
+        if content.type == .image {
+            if let contentImage = content.image {
+                UIImageWriteToSavedPhotosAlbum(contentImage, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
             }
         }else{
-            if let urlString = dic["url"] as? String {
+            if let videoURL = content.videoURL {
                 appDel.showHud()
-                saveVideo(urlString: urlString) { success in
+                saveVideo(urlString: videoURL) { success in
                     DispatchQueue.main.async {
                         appDel.hideHud()
                         if success {
@@ -123,18 +117,8 @@ extension ListViewController : ListViewTableViewCellDelegate {
                     }
                 }
             }
-            
         }
     }
-    
-//    func downloadButtonPressed(image: UIImage?) {
-//        if self.type = .image {
-//            if let image = image {
-//                print("downloadButtonPressed:\(image.size)")
-//                UIImageWriteToSavedPhotosAlbum(image, self, #selector(self.image(_:didFinishSavingWithError:contextInfo:)), nil)
-//            }
-//        }
-//    }
     
     @objc func image(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
         if let error = error{
@@ -143,7 +127,6 @@ extension ListViewController : ListViewTableViewCellDelegate {
             let alertCon = UIAlertController(title: "안내", message: "저장되었습니다", preferredStyle: .alert)
             alertCon.addAction(UIAlertAction(title: "확인", style: .cancel, handler: {_ in}))
             self.present(alertCon, animated: true, completion: {})
-//            toastShow(message: "Complete.")
         }
     }
 }
@@ -158,12 +141,10 @@ class ListViewTableViewCell : UITableViewCell {
     var instaImageView : UIImageView!
     var valueLabel : UILabel!
     var downloadButton : UIButton!
+    var typeImageBackView : UIView!
+    var typeImageView : UIImageView!
     var index = 0
     var delegate : ListViewTableViewCellDelegate?
-    
-    var instaImage : UIImage?
-    
-    var type : ContentType = .image
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -177,43 +158,38 @@ class ListViewTableViewCell : UITableViewCell {
         self.contentView.addSubview(instaImageView)
         
         downloadButton = UIButton(type: .system)
-        downloadButton.frame = CGRect(x: SCREEN.WIDTH - 85, y: 0, width: 80, height: 35)
+        downloadButton.frame = CGRect(x: SCREEN.WIDTH - 55, y: 0, width: 45, height: 45)
         downloadButton.center.y = 50
-        downloadButton.setTitle("download", for: .normal)
-        downloadButton.setTitleColor(UIColor.gray, for: .normal)
+        downloadButton.setImage(UIImage.fontAwesomeIcon(name: .fileDownload, style: .solid, textColor: #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1), size: CGSize(width: 50, height: 50)), for: .normal)
+        downloadButton.tintColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
         downloadButton.addTarget(self, action: #selector(downloadButtonPressed), for: .touchUpInside)
-        downloadButton.layer.cornerRadius = downloadButton.frame.size.height / 2
-        downloadButton.layer.borderWidth = 0.5
-        downloadButton.layer.borderColor = UIColor.gray.cgColor
         self.contentView.addSubview(downloadButton)
         
         valueLabel = UILabel(frame: CGRect(x: instaImageView.frame.maxX + 10, y: 0, width: downloadButton.frame.minX - (instaImageView.frame.maxX + 10), height: 100))
         valueLabel.textColor = UIColor.darkGray
         self.contentView.addSubview(valueLabel)
+     
+        typeImageBackView = UIView(frame: instaImageView.bounds)
+        typeImageBackView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+        instaImageView.addSubview(typeImageBackView)
         
+        typeImageView = UIImageView(frame: typeImageBackView.bounds)
+        typeImageView.frame.size.width *= 0.3
+        typeImageView.frame.size.height *= 0.3
+        typeImageView.frame.origin.x = typeImageBackView.frame.width - typeImageView.frame.size.width
+        typeImageView.frame.origin.y = 0
+        typeImageBackView.addSubview(typeImageView)
     }
     
     @objc func downloadButtonPressed(){
-        print("downloadButtonPressed")
         self.delegate?.downloadButtonPressed?(index: self.index)
-//        if self.type == .image {
-//        self.delegate?.downloadButtonPressed?(image: self.instaImage)
-//        }else{
-//            self.delegate?.downloadButtonPressed?(mp4UrlString: <#T##String#>)
-//        }
     }
     
     func setImage(image:UIImage?){
         guard let image = image else { return }
         
-        self.instaImage = image
-//        self.valueLabel.text = "\(Int(image.size.width)) x \(Int(image.size.height))"
-        print("setImageA:\(image.size)")
-        
         image.downSample(pointSize: self.instaImageView.frame.size, complete: {
             self.instaImageView.image = $0
-            print("setImageB:\(String(describing: $0?.size))")
-            
         })
     }
     
