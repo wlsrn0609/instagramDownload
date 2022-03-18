@@ -88,7 +88,7 @@ class MainViewController: UIViewController {
         }
         
 //        //todo remove test
-//        self.urlString = testUrlString2
+        self.urlString = testUrlString
     }
     
     @objc func readButtonPressed(){
@@ -151,6 +151,8 @@ class MainViewController: UIViewController {
 
 extension MainViewController : WebViewDelegate {
     func didFinishLoad() {
-        self.readButtonPressed()
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { timer in
+            self.readButtonPressed()
+        }
     }
 }

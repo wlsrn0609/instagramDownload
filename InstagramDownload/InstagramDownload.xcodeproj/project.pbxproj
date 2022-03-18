@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4E7557FB39E02F54CE8377F6 /* Pods_InstagramDownload.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9126BBD345CDEDAC91A675DD /* Pods_InstagramDownload.framework */; };
+		782E908D27584ED0009BB247 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782E908C27584ED0009BB247 /* Regex.swift */; };
 		788D3F4826F1D89F00AFA91F /* downSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 788D3F4726F1D89F00AFA91F /* downSample.swift */; };
 		78E1134F26F058D1007678AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1134E26F058D1007678AA /* AppDelegate.swift */; };
 		78E1135326F058D1007678AA /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E1135226F058D1007678AA /* MainViewController.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		782E908C27584ED0009BB247 /* Regex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
 		788D3F4726F1D89F00AFA91F /* downSample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = downSample.swift; sourceTree = "<group>"; };
 		78E1134B26F058D1007678AA /* InstagramDownload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InstagramDownload.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78E1134E26F058D1007678AA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -89,6 +91,7 @@
 				78E1136B26F07151007678AA /* ListViewController.swift */,
 				78E1136226F05BA1007678AA /* WebView.swift */,
 				7EE33A8826F4611C000AD3AA /* WebView+imageurls.swift */,
+				782E908C27584ED0009BB247 /* Regex.swift */,
 				78E1136F26F07F05007678AA /* temp.swift */,
 				7EA8DC5326F450DB00E76BB4 /* temp2.swift */,
 				7EE33A8426F4586B000AD3AA /* temp3.swift */,
@@ -240,6 +243,7 @@
 			files = (
 				7EE33A8B26F47C7E000AD3AA /* Extenstion.swift in Sources */,
 				78E1136326F05BA1007678AA /* WebView.swift in Sources */,
+				782E908D27584ED0009BB247 /* Regex.swift in Sources */,
 				78E1135326F058D1007678AA /* MainViewController.swift in Sources */,
 				7EE33A8926F4611C000AD3AA /* WebView+imageurls.swift in Sources */,
 				78E1136826F05F0E007678AA /* Toast.swift in Sources */,

@@ -19,7 +19,7 @@ extension String {
                 return String(self[substringFrom..<substringTo])
             }
         }) {
-//            print("findString:\(findString)")
+            print("findString:\(findString)")
             findStrings.append(findString)
             if lastIndex < endIndex {
                 self.findString(from: from, to: to, lastIndex: lastIndex, strings: findStrings, complete: complete)

@@ -61,26 +61,13 @@ struct Content {
     static func findImageContent(htmlString : String, complete:@escaping(_:[Content])-> Void){
         
         var contents = [Content]()
-        
-        htmlString.findString(from: "srcset=\"", to: "\"", strings: []) { findImageUrlStrings in
-            //여러개의 이미지 주소쌍이 나온다
-            //"주소 1080w,주소 1080w,주소 1080w" 형태
-            
+        htmlString.findString(from: "https://", to: "\"", strings: []) { findImageUrlStrings in
             findImageUrlStrings.forEach{ imageUrlString in
-                var maxSize = 0
-                var maxSizeUrl = ""
-                let imageUrls = imageUrlString.components(separatedBy: ",")
-                imageUrls.forEach { imageUrl in
-                    let urlBlocks = imageUrl.components(separatedBy: " ")
-                    if urlBlocks.count == 2 {
-                        let sizeString = urlBlocks[1].replacingOccurrences(of: "w", with: "")
-                        if let sizeValue = Int(sizeString, radix: 10), sizeValue > maxSize {
-                            maxSize = sizeValue
-                            maxSizeUrl = urlBlocks[0].replacingOccurrences(of: "amp;", with: "")
-                        }
-                    }
+                if imageUrlString.contains(".jpg") {
+                    let imageUrlString = "https://" + imageUrlString.replacingOccurrences(of: "amp;", with: "")
+//                    print("--------imageUrlString:\(imageUrlString)")
+                    contents.append(Content(type: .image, imageURL: imageUrlString, imageSize: ""))
                 }
-                contents.append(Content(type: .image, imageURL: maxSizeUrl, imageSize: "\(maxSize)"))
             }
             complete(contents)
         }
@@ -103,6 +90,8 @@ struct Content {
             findVideoUrlStrings.forEach { findVideoUrlString in
                 findVideoUrlString.findString(from: "src=\"", to: "\"", strings: []) { urls in
                     if urls.count == 2 {
+                        print("--------videoUrl:\(urls[0].replacingOccurrences(of: "amp;", with: ""))")
+                        print("--------videoImageUrl:\(urls[1].replacingOccurrences(of: "amp;", with: ""))")
                         contents.append(Content(type: .video, imageURL: urls[1].replacingOccurrences(of: "amp;", with: ""), videoURL: urls[0].replacingOccurrences(of: "amp;", with: "")))
                     }
                     count -= 1 //못 찾더라도 클로저가 실행된다는 가정이 포함되어있다
@@ -231,3 +220,8 @@ extension WebView {
 
     
 }
+
+
+
+
+
