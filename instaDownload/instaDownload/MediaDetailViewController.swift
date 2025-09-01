@@ -120,7 +120,6 @@ class MediaPageContentViewController: UIViewController {
     }
 
     func saveMedia() {
-        guard let url = URL(string: mediaItem.url) else { return }
 
         if mediaItem.type == .image {
             Logger.log("checkPoint1")

@@ -14,6 +14,17 @@ final class PhotoAlbumHelper {
         }
     }
     
+    public func saveImagesToInstaDownload(_ images: [UIImage], completion: @escaping (Bool) -> Void) {
+        self.ensureAlbum { [weak self] albumId in
+            guard let albumId = albumId else { completion(false); return }
+            self?.saveImages(images: images, toAlbumId: albumId) {
+                completion(true)
+            }
+        }
+    }
+    
+    
+    
     //MARK: private function
     
     /// 앨범의 localIdentifier를 보장해서 completion으로 돌려줌
@@ -45,6 +56,25 @@ final class PhotoAlbumHelper {
             let id = UserDefaults.standard.string(forKey: self.albumIdKey)
             completion(success ? id : nil)
         })
+    }
+    
+    private func saveImages(index : Int = 0, images : [UIImage], toAlbumId albumId: String, completion: @escaping () -> ()) {
+        Logger.log("index:\(index), images.count:\(images.count)")
+        
+        //count가 N인 경우, index는 0부터 N-1
+        let N = images.count
+        if index <= N - 1 {
+            
+            let image = images[index]
+            
+            self.saveImage(image, toAlbumId: albumId) { _ in
+                Logger.log("saveImage index + 1 실행")
+                self.saveImages(index: index + 1, images: images, toAlbumId: albumId, completion: completion)
+            }
+        }else{
+            Logger.log("saveImage 종료")
+            completion()
+        }
     }
     
     private func saveImage(_ image: UIImage, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {

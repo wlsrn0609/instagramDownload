@@ -36,6 +36,28 @@ public final class ImageLoader {
         cache.totalCostLimit = 150 * 1024 * 1024
     }
 
+    public func loads(index: Int = 0, images:[UIImage] = [UIImage](), urlStrings: [String], completion: @escaping ([UIImage]) -> Void) {
+        Logger.log("index:\(index), urlStrings.count:\(urlStrings.count)")
+        
+        var images: [UIImage] = images
+        
+        //count가 N인 경우, index는 0부터 N-1
+        let N = urlStrings.count
+        if index <= N - 1 {
+            Logger.log("loads index + 1 실행")
+                        
+            self.load(urlStrings[index]) { image in
+                if let image = image {
+                    images.append(image)
+                    self.loads(index: index + 1, images:images, urlStrings: urlStrings, completion: completion)
+                }
+            }
+        }else{
+            Logger.log("loads 종료")
+            completion(images)
+        }
+    }
+    
     @discardableResult
     public func load(_ urlString: String, completion: @escaping (UIImage?) -> Void) -> URLSessionDataTask? {
         guard let url = URL(string: urlString) else {

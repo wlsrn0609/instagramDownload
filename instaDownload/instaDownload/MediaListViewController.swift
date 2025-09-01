@@ -50,52 +50,65 @@ class MediaListViewController: UICollectionViewController {
     }
 
     @objc func saveAllMedia() {
-        let hud = UIActivityIndicatorView(style: .large)
-        hud.center = view.center
-        view.addSubview(hud)
-        hud.startAnimating()
-
-        let group = DispatchGroup()
-        let queue = DispatchQueue(label: "com.insta.saveQueue")
-
-        for item in mediaItems {
-            group.enter()
-            queue.async {
-                guard let url = URL(string: item.url) else {
-                    group.leave()
-                    return
-                }
-
-                if item.type == .image {
-                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-                        self.saveImageToAlbum(image)
-                    }
-                    group.leave()
-                } else {
-                    let tempFile = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString + ".mp4")
-                    URLSession.shared.downloadTask(with: url) { localURL, _, _ in
-                        if let localURL = localURL {
-                            try? FileManager.default.removeItem(at: tempFile)
-                            try? FileManager.default.moveItem(at: localURL, to: tempFile)
-
-                            PHPhotoLibrary.shared().performChanges({
-                                let request = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: tempFile)
-                                let placeholder = request?.placeholderForCreatedAsset
-                                self.addAssetToAlbum(placeholder)
-                            }) { _, _ in group.leave() }
-                        } else {
-                            group.leave()
-                        }
-                    }.resume()
-                }
+        
+        let urls = mediaItems.compactMap {
+            $0.type == .image ? $0.url : nil
+        }
+        ImageLoader.shared.loads(urlStrings: urls) {
+            Logger.log("image load complete:\($0)")
+            PhotoAlbumHelper.shared.saveImagesToInstaDownload($0) { success in
+                Logger.log("\(success ? "성공" : "실패")")
+                
             }
         }
-
-        group.notify(queue: .main) {
-            hud.stopAnimating()
-            hud.removeFromSuperview()
-            self.showAlert(message: "모든 콘텐츠가 저장되었습니다.", title: "완료")
-        }
+        
+        
+//        let hud = UIActivityIndicatorView(style: .large)
+//        hud.center = view.center
+//        view.addSubview(hud)
+//        hud.startAnimating()
+//
+//        let group = DispatchGroup()
+//        let queue = DispatchQueue(label: "com.insta.saveQueue")
+//
+//        for item in mediaItems {
+//            group.enter()
+//            queue.async {
+//                guard let url = URL(string: item.url) else {
+//                    group.leave()
+//                    return
+//                }
+//
+//                if item.type == .image {
+//                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+//                        self.saveImageToAlbum(image)
+//                    }
+//                    group.leave()
+//                } else {
+//                    let tempFile = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString + ".mp4")
+//                    URLSession.shared.downloadTask(with: url) { localURL, _, _ in
+//                        if let localURL = localURL {
+//                            try? FileManager.default.removeItem(at: tempFile)
+//                            try? FileManager.default.moveItem(at: localURL, to: tempFile)
+//
+//                            PHPhotoLibrary.shared().performChanges({
+//                                let request = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: tempFile)
+//                                let placeholder = request?.placeholderForCreatedAsset
+//                                self.addAssetToAlbum(placeholder)
+//                            }) { _, _ in group.leave() }
+//                        } else {
+//                            group.leave()
+//                        }
+//                    }.resume()
+//                }
+//            }
+//        }
+//
+//        group.notify(queue: .main) {
+//            hud.stopAnimating()
+//            hud.removeFromSuperview()
+//            self.showAlert(message: "모든 콘텐츠가 저장되었습니다.", title: "완료")
+//        }
     }
 
     func saveImageToAlbum(_ image: UIImage) {
