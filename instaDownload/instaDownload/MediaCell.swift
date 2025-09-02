@@ -53,8 +53,8 @@ class MediaCell: UICollectionViewCell {
         
         let url = item.previewURL.isEmpty ? item.url : item.previewURL
         currentURLString = url
-
-        _ = ImageLoader.shared.load(url) { [weak self] image in
+        
+        _ = ImageLoader.shared.loadImage(url) { [weak self] image in
             guard let self, self.currentURLString == url else { return }
             self.imageView.image = image
         }

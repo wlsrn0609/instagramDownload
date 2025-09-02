@@ -82,8 +82,10 @@ class InstagramViewController: UIViewController {
     }
 
     func loadInstagram() {
-        if let clipboardURL = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines),
-           clipboardURL.contains("instagram.com/p/"),
+        let clipboardURL = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines)
+        Logger.log("clipboardURL:\(clipboardURL)")
+        
+        if let clipboardURL, clipboardURL.contains("instagram.com/"),
            let url = URL(string: clipboardURL) {
             webView.load(URLRequest(url: url))
         } else if let url = URL(string: "https://www.instagram.com/") {
@@ -106,8 +108,7 @@ class InstagramViewController: UIViewController {
         guard blockingView == nil else { return }
 
         guard let clipboardURL = UIPasteboard.general.string,
-              clipboardURL.contains("instagram.com/p/"),
-              let _ = extractPostId(from: clipboardURL) else {
+              clipboardURL.contains("instagram.com/") else {
             showAlert(message: "올바른 인스타그램 게시물 링크가 아닙니다.")
             return
         }

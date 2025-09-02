@@ -8,6 +8,8 @@ enum PhotoAlbumHelperError: Error {
     case albumCreationFailed
     case dataEncodingFailed
     case photosFrameworkError(String)
+    case fileNotReachable               // ← 추가: 파일 접근 불가
+    case unsupportedVideoType(String)   // ← 추가: 확장자/UTType 판별 실패
     case unknown
 }
 
@@ -24,6 +26,10 @@ extension PhotoAlbumHelperError: LocalizedError {
             return "이미지 데이터를 인코딩할 수 없습니다."
         case .photosFrameworkError(let msg):
             return "Photos 프레임워크 오류: \(msg)"
+        case .fileNotReachable:
+            return "영상 파일에 접근할 수 없습니다."
+        case .unsupportedVideoType(let ext):
+            return "지원하지 않는 영상 형식입니다: \(ext)"
         case .unknown:
             return "알 수 없는 오류가 발생했습니다."
         }
@@ -36,6 +42,11 @@ struct ImageDataInfo {
     let fileName : String
 }
 
+struct VideoInfo {
+    let uti: String
+    let fileName: String
+}
+
 extension PhotoAlbumHelper {
     fileprivate protocol Interface {
         
@@ -43,7 +54,8 @@ extension PhotoAlbumHelper {
         func saveImagesToInstaDownload(_ images: [UIImage], format:SaveImageFormat, completion: @escaping (PhotoAlbumHelperVoidResult) -> Void)
 
 //        //todo
-//        func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void)
+        func saveVideoToInstaDownload(_ fileURL: URL, completion: @escaping (PhotoAlbumHelperVoidResult) -> Void)
+        func saveVideosToInstaDownload(_ fileURLs: [URL], completion: @escaping (PhotoAlbumHelperVoidResult) -> Void)
     }
 }
 
@@ -141,6 +153,60 @@ final class PhotoAlbumHelper {
         }
     }
     
+    func saveVideoToInstaDownload(_ fileURL: URL, completion: @escaping (PhotoAlbumHelperVoidResult) -> Void){
+        self.requestAuthorization { [weak self] requestAuthorizationResult in
+            guard let self else { return }
+            
+            switch requestAuthorizationResult {
+            case .success:
+                
+                self.ensureAlbum { ensureAlbumResult in
+                    
+                    switch ensureAlbumResult {
+                    case .success(let albumId):
+                        
+                        self.saveVideo(fileURL, toAlbumId: albumId) { saveVideoResult in
+                            self.onMain { completion(saveVideoResult) }
+                        }
+                        
+                    case .failure(let error):
+                        self.onMain { completion(.failure(error)) }
+                    }
+                    
+                }
+                
+            case .failure(let error):
+                self.onMain { completion(.failure(error)) }
+            }
+        }
+    }
+    func saveVideosToInstaDownload(_ fileURLs: [URL], completion: @escaping (PhotoAlbumHelperVoidResult) -> Void){
+        self.requestAuthorization { [weak self] requestAuthorizationResult in
+            guard let self else { return }
+            
+            switch requestAuthorizationResult {
+            case .success:
+                
+                self.ensureAlbum { ensureAlbumResult in
+                    
+                    switch ensureAlbumResult {
+                    case .success(let albumId):
+                        
+                        self.saveVideos(fileURLs, toAlbumId: albumId) { saveVideoResult in
+                            self.onMain { completion(saveVideoResult) }
+                        }
+                        
+                    case .failure(let error):
+                        self.onMain { completion(.failure(error)) }
+                    }
+                    
+                }
+                
+            case .failure(let error):
+                self.onMain { completion(.failure(error)) }
+            }
+        }
+    }
 }
 
 
@@ -240,6 +306,105 @@ extension PhotoAlbumHelper : PhotoAlbumHelper.Interface {
         step()
     }
     
+    /// URL의 확장자로 UTI/파일명을 결정. 확장 불명은 nil
+    func makeVideoResourceOptions(for url: URL) -> VideoInfo? {
+        let ts = Int(Date().timeIntervalSince1970)
+        let ext = url.pathExtension.lowercased()
+        
+        // 대표적인 케이스 매핑
+        switch ext {
+        case "mp4":
+            return VideoInfo(uti: UTType.mpeg4Movie.identifier,
+                             fileName: url.lastPathComponent.isEmpty ? "VID_\(ts).mp4" : url.lastPathComponent)
+        case "mov":
+            return VideoInfo(uti: UTType.quickTimeMovie.identifier,
+                             fileName: url.lastPathComponent.isEmpty ? "VID_\(ts).mov" : url.lastPathComponent)
+        case "m4v":
+            return VideoInfo(uti: "com.apple.m4v-video",   // UTType.m4v.identifier (iOS 17+)가 없으면 literal
+                             fileName: url.lastPathComponent.isEmpty ? "VID_\(ts).m4v" : url.lastPathComponent)
+        case "avi":
+            return VideoInfo(uti: "public.avi",
+                             fileName: url.lastPathComponent.isEmpty ? "VID_\(ts).avi" : url.lastPathComponent)
+        default:
+            // UTType로 유추 시도 (iOS 14+)
+            if let ut = UTType(filenameExtension: ext)?.identifier {
+                return VideoInfo(uti: ut,
+                                 fileName: url.lastPathComponent.isEmpty ? "VID_\(ts).\(ext)" : url.lastPathComponent)
+            }
+            return nil
+        }
+    }
+    
+    // 단일 비디오 저장
+    fileprivate func saveVideo(_ fileURL: URL,
+                               toAlbumId albumId: String,
+                               completion: @escaping (PhotoAlbumHelperVoidResult) -> Void) {
+        
+        // 앨범 확인
+        guard let album = PHAssetCollection
+            .fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil).firstObject
+        else { completion(.failure(PhotoAlbumHelperError.albumNotFound)); return }
+        
+        // 파일 접근 가능?
+        guard FileManager.default.isReadableFile(atPath: fileURL.path) else {
+            completion(.failure(PhotoAlbumHelperError.fileNotReachable))
+            return
+        }
+        
+        // UTI/파일명 만들기
+        guard let videoInfo = makeVideoResourceOptions(for: fileURL) else {
+            let ext = fileURL.pathExtension.lowercased()
+            completion(.failure(PhotoAlbumHelperError.unsupportedVideoType(ext)))
+            return
+        }
+        
+        let options = PHAssetResourceCreationOptions()
+        options.uniformTypeIdentifier = videoInfo.uti
+        options.originalFilename = videoInfo.fileName
+        
+        PHPhotoLibrary.shared().performChanges({
+            let req = PHAssetCreationRequest.forAsset()
+            // 리소스로 비디오 추가 (이 방식이 파일명/UTI 지정에 유리)
+            req.addResource(with: .video, fileURL: fileURL, options: options)
+            
+            if let changeReq = PHAssetCollectionChangeRequest(for: album),
+               let ph = req.placeholderForCreatedAsset {
+                changeReq.addAssets([ph] as NSArray)
+            }
+        }, completionHandler: { success, error in
+            if success {
+                completion(.success(()))
+            } else if let error {
+                completion(.failure(PhotoAlbumHelperError.photosFrameworkError(error.localizedDescription)))
+            } else {
+                completion(.failure(PhotoAlbumHelperError.unknown))
+            }
+        })
+    }
+    
+    // 여러 비디오 순차 저장 (첫 실패에서 중단)
+    fileprivate func saveVideos(_ fileURLs: [URL],
+                                toAlbumId albumId: String,
+                                completion: @escaping (PhotoAlbumHelperVoidResult) -> Void) {
+        
+        var index = 0
+        func step() {
+            if index >= fileURLs.count {
+                completion(.success(()))
+                return
+            }
+            saveVideo(fileURLs[index], toAlbumId: albumId) { result in
+                switch result {
+                case .success:
+                    index += 1
+                    step()
+                case .failure(let e):
+                    completion(.failure(e))
+                }
+            }
+        }
+        step()
+    }
     //todo
 //    fileprivate func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {
 //        guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil).firstObject

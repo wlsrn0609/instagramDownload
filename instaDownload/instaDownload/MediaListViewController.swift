@@ -51,22 +51,34 @@ class MediaListViewController: UICollectionViewController {
 
     @objc func saveAllMedia() {
         
+//        let urls = mediaItems.compactMap {
+//            $0.type == .image ? $0.url : nil
+//        }
+//        ImageLoader.shared.loadImages(urlStrings: urls) { [weak self] in
+//            Logger.log("image load complete:\($0)")
+//            PhotoAlbumHelper.shared.saveImagesToInstaDownload($0, format: .heic(quality: 1, fallbackToJPEG: true)) { result in
+//                switch result {
+//                case .success:
+//                    self?.showAlert("이미지를 저장하였습니다")
+//                case .failure(let error):
+//                    self?.showError("이미지 저장에 실패하였습니다\n\(error.localizedDescription)")
+//                }
+//            }
+//        }
         let urls = mediaItems.compactMap {
-            $0.type == .image ? $0.url : nil
+            $0.type == .video ? $0.url : nil
         }
-        ImageLoader.shared.loads(urlStrings: urls) { [weak self] in
-            Logger.log("image load complete:\($0)")
-            PhotoAlbumHelper.shared.saveImagesToInstaDownload($0, format: .heic(quality: 1, fallbackToJPEG: true)) { result in
+        ImageLoader.shared.loadVideos(urlStrings: urls) { [weak self] urls in
+            Logger.log("video load complete:\(urls)")
+            PhotoAlbumHelper.shared.saveVideosToInstaDownload(urls) { result in
                 switch result {
                 case .success:
-                    self?.showAlert("이미지를 저장하였습니다")
+                    self?.showAlert("영상을 저장하였습니다")
                 case .failure(let error):
-                    self?.showError("이미지 저장에 실패하였습니다\n\(error.localizedDescription)")
+                    self?.showError("영상 저장에 실패하였습니다\n\(error.localizedDescription)")
                 }
             }
         }
-        
-        
         
 //        let hud = UIActivityIndicatorView(style: .large)
 //        hud.center = view.center
