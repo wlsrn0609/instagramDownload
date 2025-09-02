@@ -8,8 +8,8 @@
 import UIKit
 import CryptoKit
 
-public final class ImageLoader {
-    public static let shared = ImageLoader()
+public final class MediaDownloader {
+    public static let shared = MediaDownloader()
 
     private let cache = NSCache<NSURL, UIImage>()
     private let ioQueue = DispatchQueue(label: "image.disk.cache")

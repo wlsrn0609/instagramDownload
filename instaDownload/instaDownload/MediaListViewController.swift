@@ -68,7 +68,7 @@ class MediaListViewController: UICollectionViewController {
         let urls = mediaItems.compactMap {
             $0.type == .video ? $0.url : nil
         }
-        ImageLoader.shared.loadVideos(urlStrings: urls) { [weak self] urls in
+        MediaDownloader.shared.loadVideos(urlStrings: urls) { [weak self] urls in
             Logger.log("video load complete:\(urls)")
             PhotoAlbumHelper.shared.saveVideosToInstaDownload(urls) { result in
                 switch result {

@@ -123,7 +123,7 @@ class MediaPageContentViewController: UIViewController {
 
         if mediaItem.type == .image {
             Logger.log("checkPoint1")
-            ImageLoader.shared.loadImage(mediaItem.url) { [weak self] image in
+            MediaDownloader.shared.loadImage(mediaItem.url) { [weak self] image in
                 guard let image else {
                     self?.showError("이미지를 저장할 수 없습니다.")
                     return

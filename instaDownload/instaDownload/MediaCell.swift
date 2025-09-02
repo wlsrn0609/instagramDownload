@@ -19,7 +19,7 @@ class MediaCell: UICollectionViewCell {
         super.prepareForReuse()
         imageView.image = nil
         if let url = currentURLString {
-            ImageLoader.shared.cancel(url)
+            MediaDownloader.shared.cancel(url)
         }
         currentURLString = nil
     }
@@ -54,7 +54,7 @@ class MediaCell: UICollectionViewCell {
         let url = item.previewURL.isEmpty ? item.url : item.previewURL
         currentURLString = url
         
-        _ = ImageLoader.shared.loadImage(url) { [weak self] image in
+        _ = MediaDownloader.shared.loadImage(url) { [weak self] image in
             guard let self, self.currentURLString == url else { return }
             self.imageView.image = image
         }
