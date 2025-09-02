@@ -1,34 +1,92 @@
 import Photos
 import UIKit
+import UniformTypeIdentifiers
+
+extension PhotoAlbumHelper {
+    fileprivate protocol Interface {
+        
+        func ensureAlbum(completion: @escaping (String?) -> Void)
+        
+        func saveImage(_ image: UIImage, toAlbumId albumId: String, format:PhotoAlbumHelper.SaveImageFormat, completion: @escaping (Bool) -> ())
+        func saveImages(_ images:[UIImage], toAlbumId albumId: String, format:PhotoAlbumHelper.SaveImageFormat, completion: @escaping (Bool) -> ())
+        
+        //todo
+        func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void)
+    }
+}
 
 final class PhotoAlbumHelper {
+    
     static let shared = PhotoAlbumHelper()
     private let albumTitle = "InstaDownload"
     private let albumIdKey = "instaDownload.album.localIdentifier"
-
     
-    public func saveImageToInstaDownload(_ image: UIImage, completion: @escaping (Bool) -> Void) {
-        self.ensureAlbum { [weak self] albumId in
-            guard let albumId = albumId else { completion(false); return }
-            self?.saveImage(image, toAlbumId: albumId, completion: completion)
-        }
+    enum SaveImageFormat {
+        case jpeg(quality: CGFloat) //0.0 ~ 1.0
+        case png
     }
     
-    public func saveImagesToInstaDownload(_ images: [UIImage], completion: @escaping (Bool) -> Void) {
-        self.ensureAlbum { [weak self] albumId in
-            guard let albumId = albumId else { completion(false); return }
-            self?.saveImages(images: images, toAlbumId: albumId) {
-                completion(true)
+    //========================================================================================================================//
+    
+    public func saveImageToInstaDownload(_ image: UIImage, format:SaveImageFormat, completion: @escaping (Bool) -> Void) {
+        self.requestAuthorization { [weak self] success in
+            guard let self, success else {
+                DispatchQueue.main.async { completion(false) }
+                return }
+            self.ensureAlbum { albumId in
+                guard let albumId else {
+                    DispatchQueue.main.async { completion(false) }
+                    return }
+                
+                self.saveImage(image, toAlbumId: albumId, format: format) { success in
+                    DispatchQueue.main.async {
+                        completion(success)
+                    }
+                }
             }
         }
     }
     
+    public func saveImagesToInstaDownload(_ images: [UIImage], format:SaveImageFormat, completion: @escaping (Bool) -> Void) {
+        self.requestAuthorization { [weak self] success in
+            guard let self, success else {
+                DispatchQueue.main.async { completion(false) }
+                return }
+            self.ensureAlbum { albumId in
+                guard let albumId else {
+                    DispatchQueue.main.async { completion(false) }
+                    return }
+                
+                self.saveImages(images, toAlbumId: albumId, format: format) { success in
+                    DispatchQueue.main.async { completion(success) }
+                }
+            }
+        }
+    }
     
+    public func requestAuthorization(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        switch status {
+        case .authorized, .limited:  // NOTE: addOnly 경로에서 limited가 내려오는 일은 거의 없지만, 호환성 대비 true 처리
+            DispatchQueue.main.async { completion(true) }
+        default:
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { newState in
+                switch newState {
+                case .authorized,.limited:
+                    DispatchQueue.main.async { completion(true) }
+                default:
+                    DispatchQueue.main.async { completion(false) }
+                }
+            }
+        }
+    }
     
-    //MARK: private function
+}
+
+extension PhotoAlbumHelper : PhotoAlbumHelper.Interface {
     
     /// 앨범의 localIdentifier를 보장해서 completion으로 돌려줌
-    private func ensureAlbum(completion: @escaping (String?) -> Void) {
+    fileprivate func ensureAlbum(completion: @escaping (String?) -> Void) {
         if let id = UserDefaults.standard.string(forKey: albumIdKey),
            let _ = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [id], options: nil).firstObject {
             completion(id)
@@ -46,56 +104,92 @@ final class PhotoAlbumHelper {
         }
 
         // 없으면 생성
+        var createdId: String?
         PHPhotoLibrary.shared().performChanges({
             let req = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: self.albumTitle)
-            let id = req.placeholderForCreatedAssetCollection.localIdentifier
-            if !id.isEmpty {
-                UserDefaults.standard.set(id, forKey: self.albumIdKey)
-            }
+            let createdId = req.placeholderForCreatedAssetCollection.localIdentifier
         }, completionHandler: { success, _ in
-            let id = UserDefaults.standard.string(forKey: self.albumIdKey)
-            completion(success ? id : nil)
+            if success, let createdId, !createdId.isEmpty {
+                UserDefaults.standard.set(createdId, forKey: self.albumIdKey)
+                completion(createdId)
+            }else{
+                completion(nil)
+            }
         })
     }
-    
-    private func saveImages(index : Int = 0, images : [UIImage], toAlbumId albumId: String, completion: @escaping () -> ()) {
-        Logger.log("index:\(index), images.count:\(images.count)")
         
-        //count가 N인 경우, index는 0부터 N-1
-        let N = images.count
-        if index <= N - 1 {
-            
-            let image = images[index]
-            
-            self.saveImage(image, toAlbumId: albumId) { _ in
-                Logger.log("saveImage index + 1 실행")
-                self.saveImages(index: index + 1, images: images, toAlbumId: albumId, completion: completion)
-            }
-        }else{
-            Logger.log("saveImage 종료")
-            completion()
-        }
-    }
-    
-    private func saveImage(_ image: UIImage, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {
+    fileprivate func saveImage(_ image: UIImage, toAlbumId albumId: String, format:SaveImageFormat, completion: @escaping (Bool) -> Void) {
         guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil).firstObject
         else { completion(false); return }
 
+        let data : Data?
+        let uti : String
+        switch format {
+        case .jpeg(let quality):
+            data = image.jpegData(compressionQuality: quality)
+            uti = UTType.jpeg.identifier
+        case .png:
+            data = image.pngData()
+            uti = UTType.png.identifier
+        }
+        
+        guard let data else {
+            Logger.log("image data encode fail (format:\(format))")
+            completion(false)
+            return
+        }
+        
+        let options = PHAssetResourceCreationOptions()
+        options.uniformTypeIdentifier = uti
+        options.originalFilename = {
+            let ts = Int(Date().timeIntervalSince1970)
+            switch format {
+            case .jpeg: return "image_\(ts).jpg"
+            case .png: return "image_\(ts).png"
+            }
+        }()
+        
         PHPhotoLibrary.shared().performChanges({
             // 1) 에셋 생성
-            let create = PHAssetChangeRequest.creationRequestForAsset(from: image)
-            guard let placeholder = create.placeholderForCreatedAsset else { return }
-
-            // 2) 앨범에 추가
-            if let albumReq = PHAssetCollectionChangeRequest(for: album) {
-                albumReq.addAssets([placeholder] as NSArray)
+            let req = PHAssetCreationRequest.forAsset()
+            req.addResource(with: .photo, data: data, options: options)
+            
+            if let changeRequest = PHAssetCollectionChangeRequest(for: album),
+               let ph = req.placeholderForCreatedAsset {
+                changeRequest.addAssets([ph] as NSArray)
             }
-        }, completionHandler: { success, _ in
+            
+        }, completionHandler: { success, error in
+            if let error {
+                Logger.log("save image fail : \(error.localizedDescription)")
+            }
             completion(success)
         })
     }
     
-    private func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {
+    fileprivate func saveImages(_ images:[UIImage], toAlbumId albumId: String, format:SaveImageFormat, completion: @escaping (Bool) -> ()) {
+        var index = 0
+        var allOK = true
+        
+        func step(){
+            if index >= images.count {
+                completion(allOK)
+                return
+            }
+            let image = images[index]
+            Logger.log("saveImage Index:\(index)/\(images.count)")
+            
+            saveImage(image, toAlbumId: albumId, format: format) { success in
+                if !success { allOK = false }
+                index += 1
+                step()
+            }
+        }
+        step()
+    }
+    
+    //todo
+    fileprivate func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {
         guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil).firstObject
         else { completion(false); return }
 
