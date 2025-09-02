@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1041FC682E66E2C900F70806 /* MediaSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1041FC672E66E2C900F70806 /* MediaSaver.swift */; };
 		108C6E8C2E272C4500F4CD5C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108C6E8B2E272C4500F4CD5C /* Logger.swift */; };
 		10F874362E6137D500DCAA38 /* js.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874352E6137D500DCAA38 /* js.swift */; };
 		10F874382E6146BA00DCAA38 /* PhotoAlbumHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */; };
-		10F8743A2E616A6900DCAA38 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874392E616A6900DCAA38 /* ImageLoader.swift */; };
+		10F8743A2E616A6900DCAA38 /* MediaDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874392E616A6900DCAA38 /* MediaDownloader.swift */; };
 		10F8743C2E616C2000DCAA38 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F8743B2E616C2000DCAA38 /* String+.swift */; };
 		10F8743E2E61978700DCAA38 /* UIViewController + UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */; };
 		10FD9E422DE3F0EE00560FCF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E362DE3F0EE00560FCF /* AppDelegate.swift */; };
@@ -29,10 +30,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1041FC672E66E2C900F70806 /* MediaSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSaver.swift; sourceTree = "<group>"; };
 		108C6E8B2E272C4500F4CD5C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		10F874352E6137D500DCAA38 /* js.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = js.swift; sourceTree = "<group>"; };
 		10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumHelper.swift; sourceTree = "<group>"; };
-		10F874392E616A6900DCAA38 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		10F874392E616A6900DCAA38 /* MediaDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDownloader.swift; sourceTree = "<group>"; };
 		10F8743B2E616C2000DCAA38 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + UIAlertController.swift"; sourceTree = "<group>"; };
 		10FD9E1A2DE3EFAC00560FCF /* instaDownload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = instaDownload.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -63,6 +65,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1041FC692E66E2D400F70806 /* MediaSaver */ = {
+			isa = PBXGroup;
+			children = (
+				1041FC672E66E2C900F70806 /* MediaSaver.swift */,
+				10F874392E616A6900DCAA38 /* MediaDownloader.swift */,
+				10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */,
+			);
+			path = MediaSaver;
+			sourceTree = "<group>";
+		};
 		10FD9E112DE3EFAC00560FCF = {
 			isa = PBXGroup;
 			children = (
@@ -97,8 +109,7 @@
 				10FD9E4F2DE3F13500560FCF /* MediaListViewController.swift */,
 				10FD9E4D2DE3F12100560FCF /* MediaDetailViewController.swift */,
 				10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */,
-				10F874392E616A6900DCAA38 /* ImageLoader.swift */,
-				10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */,
+				1041FC692E66E2D400F70806 /* MediaSaver */,
 				10FD9E4B2DE3F10800560FCF /* MediaCell.swift */,
 				10FD9E3D2DE3F0EE00560FCF /* MediaItem.swift */,
 				10FD9E3E2DE3F0EE00560FCF /* MediaType.swift */,
@@ -180,7 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10F8743A2E616A6900DCAA38 /* ImageLoader.swift in Sources */,
+				10F8743A2E616A6900DCAA38 /* MediaDownloader.swift in Sources */,
 				10FD9E422DE3F0EE00560FCF /* AppDelegate.swift in Sources */,
 				108C6E8C2E272C4500F4CD5C /* Logger.swift in Sources */,
 				10FD9E522DE3F28300560FCF /* Extensions.swift in Sources */,
@@ -194,6 +205,7 @@
 				10FD9E452DE3F0EE00560FCF /* SceneDelegate.swift in Sources */,
 				10FD9E4C2DE3F10800560FCF /* MediaCell.swift in Sources */,
 				10FD9E462DE3F0EE00560FCF /* InstagramViewController.swift in Sources */,
+				1041FC682E66E2C900F70806 /* MediaSaver.swift in Sources */,
 				10FD9E4E2DE3F12100560FCF /* MediaDetailViewController.swift in Sources */,
 				10F874382E6146BA00DCAA38 /* PhotoAlbumHelper.swift in Sources */,
 			);

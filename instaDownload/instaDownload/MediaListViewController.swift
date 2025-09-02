@@ -65,20 +65,20 @@ class MediaListViewController: UICollectionViewController {
 //                }
 //            }
 //        }
-        let urls = mediaItems.compactMap {
-            $0.type == .video ? $0.url : nil
-        }
-        MediaDownloader.shared.loadVideos(urlStrings: urls) { [weak self] urls in
-            Logger.log("video load complete:\(urls)")
-            PhotoAlbumHelper.shared.saveVideosToInstaDownload(urls) { result in
-                switch result {
-                case .success:
-                    self?.showAlert("영상을 저장하였습니다")
-                case .failure(let error):
-                    self?.showError("영상 저장에 실패하였습니다\n\(error.localizedDescription)")
-                }
-            }
-        }
+//        let urls = mediaItems.compactMap {
+//            $0.type == .video ? $0.url : nil
+//        }
+//        MediaDownloader.shared.loadVideos(urlStrings: urls) { [weak self] urls in
+//            Logger.log("video load complete:\(urls)")
+//            PhotoAlbumHelper.shared.saveVideosToInstaDownload(urls) { result in
+//                switch result {
+//                case .success:
+//                    self?.showAlert("영상을 저장하였습니다")
+//                case .failure(let error):
+//                    self?.showError("영상 저장에 실패하였습니다\n\(error.localizedDescription)")
+//                }
+//            }
+//        }
         
 //        let hud = UIActivityIndicatorView(style: .large)
 //        hud.center = view.center

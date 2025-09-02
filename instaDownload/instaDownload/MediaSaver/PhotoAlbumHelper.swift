@@ -2,6 +2,13 @@ import Photos
 import UIKit
 import UniformTypeIdentifiers
 
+public enum SaveImageFormat {
+    case jpeg(quality: CGFloat) //0.0 ~ 1.0
+    case png
+    case heic(quality: CGFloat, fallbackToJPEG: Bool = true)
+}
+
+
 enum PhotoAlbumHelperError: Error {
     case notAuthorized
     case albumNotFound
@@ -59,7 +66,7 @@ extension PhotoAlbumHelper {
     }
 }
 
-final class PhotoAlbumHelper {
+class PhotoAlbumHelper {
     
     static let shared = PhotoAlbumHelper()
     private let albumTitle = "InstaDownload"
@@ -67,13 +74,7 @@ final class PhotoAlbumHelper {
     
     typealias PhotoAlbumHelperVoidResult = Result<Void, Error>
     typealias PhotoAlbumHelperStringResult = Result<String, Error>
-    
-    enum SaveImageFormat {
-        case jpeg(quality: CGFloat) //0.0 ~ 1.0
-        case png
-        case heic(quality: CGFloat, fallbackToJPEG: Bool = true)
-    }
-    
+        
     @inline(__always)
     private func onMain(_ work: @escaping () -> ()) {
         Thread.isMainThread ? work() : DispatchQueue.main.async(execute: work)
@@ -405,21 +406,7 @@ extension PhotoAlbumHelper : PhotoAlbumHelper.Interface {
         }
         step()
     }
-    //todo
-//    fileprivate func saveVideo(fileURL: URL, toAlbumId albumId: String, completion: @escaping (Bool) -> Void) {
-//        guard let album = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: nil).firstObject
-//        else { completion(false); return }
-//
-//        PHPhotoLibrary.shared().performChanges({
-//            let create = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: fileURL)
-//            guard let placeholder = create?.placeholderForCreatedAsset else { return }
-//            if let albumReq = PHAssetCollectionChangeRequest(for: album) {
-//                albumReq.addAssets([placeholder] as NSArray)
-//            }
-//        }, completionHandler: { success, _ in
-//            completion(success)
-//        })
-//    }
+
 }
 
 //MARK About HEIC

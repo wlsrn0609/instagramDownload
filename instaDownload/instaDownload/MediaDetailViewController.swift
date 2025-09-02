@@ -83,7 +83,7 @@ class MediaPageContentViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(imageView)
-
+        
         if mediaItem.type == .video {
             playVideoPreview()
         } else {
