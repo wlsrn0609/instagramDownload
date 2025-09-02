@@ -123,16 +123,17 @@ class MediaPageContentViewController: UIViewController {
 
         if mediaItem.type == .image {
             Logger.log("checkPoint1")
-            ImageLoader.shared.load(mediaItem.url) { image in
-                guard let image = image else {
-                    self.showError("이미지를 저장할 수 없습니다.")
+            ImageLoader.shared.load(mediaItem.url) { [weak self] image in
+                guard let image else {
+                    self?.showError("이미지를 저장할 수 없습니다.")
                     return
                 }
-                PhotoAlbumHelper.shared.saveImageToInstaDownload(image) { success in
-                    if success {
-                        self.showAlert("이미지를 저장하였습니다.")
-                    }else{
-                        self.showError("이미지를 저장할 수 없습니다.")
+                PhotoAlbumHelper.shared.saveImageToInstaDownload(image, format: .heic(quality: 1, fallbackToJPEG: true)) { result in
+                    switch result {
+                    case .success:
+                        self?.showAlert("이미지를 저장하였습니다.")
+                    case .failure(let error):
+                        self?.showError("이미지 저장에 실패하였습니다\n\(error.localizedDescription)")
                     }
                 }
             }

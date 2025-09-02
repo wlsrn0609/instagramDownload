@@ -54,11 +54,15 @@ class MediaListViewController: UICollectionViewController {
         let urls = mediaItems.compactMap {
             $0.type == .image ? $0.url : nil
         }
-        ImageLoader.shared.loads(urlStrings: urls) {
+        ImageLoader.shared.loads(urlStrings: urls) { [weak self] in
             Logger.log("image load complete:\($0)")
-            PhotoAlbumHelper.shared.saveImagesToInstaDownload($0) { success in
-                Logger.log("\(success ? "성공" : "실패")")
-                
+            PhotoAlbumHelper.shared.saveImagesToInstaDownload($0, format: .heic(quality: 1, fallbackToJPEG: true)) { result in
+                switch result {
+                case .success:
+                    self?.showAlert("이미지를 저장하였습니다")
+                case .failure(let error):
+                    self?.showError("이미지 저장에 실패하였습니다\n\(error.localizedDescription)")
+                }
             }
         }
         
