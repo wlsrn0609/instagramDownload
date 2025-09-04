@@ -49,38 +49,46 @@ class MediaCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with item: MediaItem) {
-        
-        let url = item.previewURL.isEmpty ? item.url : item.previewURL
-        currentURLString = url
-        
-        _ = MediaDownloader.shared.loadImage(url) { [weak self] image in
-            guard let self, self.currentURLString == url else { return }
-            self.imageView.image = image
+    func configure(with cellRenderable: CellRenderable){
+        switch cellRenderable {
+        case .photo(let image, _):
+            DispatchQueue.main.async {
+                self.imageView.image = image
+                self.videoIcon.isHidden = true
+            }
+        case .video(let thumbnail, _, _):
+            DispatchQueue.main.async {
+                self.imageView.image = thumbnail
+                self.videoIcon.isHidden = false
+            }
         }
-
-        videoIcon.isHidden = (item.type == .image)
-        
-//        let previewSource = item.previewURL.isEmpty ? item.url : item.previewURL
-//        let cacheKey = previewSource as NSString
-//
-//        if let cached = cache.object(forKey: cacheKey) {
-//            imageView.image = cached
-//        } else {
-//            imageView.image = nil
-//            DispatchQueue.global().async {
-//                guard let url = URL(string: previewSource),
-//                      let data = try? Data(contentsOf: url),
-//                      let image = UIImage(data: data) else { return }
-//                DispatchQueue.main.async {
-//                    cache.setObject(image, forKey: cacheKey)
-//                    self.imageView.image = image
+    }
+    
+//    func configure(with media: Media) {
+//        MediaSaver.shared.downloadForDisplay([media]) { [weak self] result in
+//            guard let self else { return }
+//            switch result {
+//            case .success(let success):
+//                guard let cellRenderable = success.first else { return }
+//                
+//                switch cellRenderable {
+//                case .photo(let image, _):
+//                    DispatchQueue.main.async {
+//                        self.imageView.image = image
+//                        self.videoIcon.isHidden = true
+//                    }
+//                case .video(let thumbnail, _, _):
+//                    DispatchQueue.main.async {
+//                        self.imageView.image = thumbnail
+//                        self.videoIcon.isHidden = false
+//                    }
 //                }
+//                
+//            case .failure(let failure):
+//                Logger.log("error:\(failure.localizedDescription)")
 //            }
 //        }
-
-//        videoIcon.isHidden = (item.type == .image)
-    }
+//    }
 }
 
 //final class MediaCell: UICollectionViewCell {

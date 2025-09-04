@@ -9,9 +9,32 @@ import UIKit
 import AVFoundation
 
 /// 미디어 아이템(이미지/영상)을 통일된 타입으로 표현
+// Media에 canonicalKey 제공
 public enum Media {
     case image(urlString: String)
     case video(urlString: String)
+
+    var urlString: String {
+        switch self {
+        case .image(let u), .video(let u): return u
+        }
+    }
+
+    // 쿼리/프래그먼트 제거한 절대경로로 동일성 판단
+    var canonicalKey: String {
+        guard let u = URL(string: self.urlString) else { return self.urlString }
+        let normalized = u.removingQueryAndFragment.absoluteString
+        return normalized
+    }
+}
+
+private extension URL {
+    var removingQueryAndFragment: URL {
+        var comps = URLComponents(url: self, resolvingAgainstBaseURL: false)
+        comps?.query = nil
+        comps?.fragment = nil
+        return comps?.url ?? self
+    }
 }
 
 /// 셀 렌더링용 결과(이미지/영상별 썸네일/로컬URL 포함)
@@ -28,8 +51,13 @@ public final class MediaSaver {
 
     // MARK: - Public High-level APIs
 
+    public func downloadAndSaveMedia(_ item: Media,
+                                     imageFormat: SaveImageFormat,
+                                     completion: @escaping (Result<Void, Error>) -> Void) {
+        self.downloadAndSaveMedias([item], imageFormat: imageFormat, completion: completion)
+    }
     /// 여러 개(이미지만/비디오만/혼합 모두) 순차 저장
-    public func downloadAndSaveMedia(_ items: [Media], //error : Method cannot be declared public because its parameter uses an internal type
+    public func downloadAndSaveMedias(_ items: [Media],
                                      imageFormat: SaveImageFormat,
                                      completion: @escaping (Result<Void, Error>) -> Void) {
         func step(_ idx: Int) {
@@ -38,6 +66,7 @@ public final class MediaSaver {
             switch items[idx] {
             case .image(let url):
                 MediaDownloader.shared.loadImage(url) { img in
+                    Logger.log("url:\(url), img:\(img)")
                     guard let img else { completion(.failure(PhotoAlbumHelperError.dataEncodingFailed)); return }
                     PhotoAlbumHelper.shared.saveImageToInstaDownload(img, format: imageFormat) { res in
                         switch res {
@@ -74,6 +103,7 @@ public final class MediaSaver {
             switch items[idx] {
             case .image(let url):
                 MediaDownloader.shared.loadImage(url) { img in
+                    Logger.log("url:\(url), img:\(img)")
                     guard let img else { completion(.failure(PhotoAlbumHelperError.dataEncodingFailed)); return }
                     result.append(.photo(image: img, originalURL: url))
                     step(idx + 1)
@@ -86,12 +116,30 @@ public final class MediaSaver {
                         result.append(.video(thumbnail: thumb, localURL: local, originalURL: url))
                         step(idx + 1)
                     } else {
+                        Logger.log("url:\(url), local:\(local)")
                         completion(.failure(PhotoAlbumHelperError.dataEncodingFailed))
                     }
                 }
             }
         }
         step(0)
+    }
+    public func downloadForDisplay(_ media: Media,
+                                   completion: @escaping (Result<CellRenderable, Error>) -> Void) {
+        
+        self.downloadForDisplay([media]) { result in
+            switch result {
+            case .success(let list):
+                if let first = list.first {
+                    completion(.success(first))
+                }else{
+                    completion(.failure(PhotoAlbumHelperError.unknown))
+                }
+            case .failure(let error):
+                Logger.log("error:\(error.localizedDescription)")
+            }
+        }
+        
     }
 
     // MARK: - 썸네일 생성 (첫 프레임)

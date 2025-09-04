@@ -11,7 +11,7 @@ class InstagramViewController: UIViewController {
     var webView: WKWebView!
     let downloadButton = UIButton(type: .system)
     var blockingView: UIView?
-    var urls: [String] = []
+    var medias: [Media] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -114,7 +114,7 @@ class InstagramViewController: UIViewController {
         }
 
         showBlockingView()
-        urls.removeAll()
+        medias.removeAll()
         moveToFirstSlideAndStartCollection()
     }
 
@@ -129,9 +129,9 @@ class InstagramViewController: UIViewController {
     }
 
     func moveToFirstSlideAndStartCollection() {
-        webView.evaluateJavaScript(JSCode.goToMoveFirst) { _, _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                self.collectSequentially(attempt: 0)
+        webView.evaluateJavaScript(JSCode.goToMoveFirst) { [weak self] _, _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                self?.collectSequentially(attempt: 0)
             }
         }
     }
@@ -142,27 +142,44 @@ class InstagramViewController: UIViewController {
             return
         }
 
-        webView.evaluateJavaScript(JSCode.getMedia) { result, _ in
-            if let url = result as? String, self.urls.last != url {
-                self.urls.append(url)
+        webView.evaluateJavaScript(JSCode.getMedia) { [weak self] result, _ in
+            guard let self else { return }
+
+            let items = self.parseJSGetMediaResult(result)
+
+            // ❶ 이번 슬라이드에서 아무것도 못 얻었으면, 다음으로 넘어가지 말고 같은 슬라이드 재시도
+            if items.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    self.collectSequentially(attempt: attempt + 1)
+                }
+                return
             }
 
-            self.webView.evaluateJavaScript(JSCode.gotoNext) { clickedResult, _ in
+            // ❷ 얻은 아이템을 중복 제거 후 추가 (아래 canonicalKey 참고)
+            for item in items where !self.medias.contains(where: { $0.canonicalKey == item.canonicalKey }) {
+                self.medias.append(item)
+            }
+
+            // ❸ 그 다음에야 다음 슬라이드로 이동
+            self.webView.evaluateJavaScript(JSCode.gotoNext) { [weak self] clickedResult, _ in
+                guard let self else { return }
                 let clicked = clickedResult as? Bool ?? false
 
                 if clicked {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                         self.collectSequentially(attempt: attempt + 1)
                     }
                 } else {
+                    // 마지막 슬라이드: 보강 수집 로직 유지
                     let clipboardURL = UIPasteboard.general.string ?? ""
                     let postId = self.extractPostId(from: clipboardURL) ?? ""
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        self.webView.evaluateJavaScript(JSCode.collectAllJSForLastItem(postId: postId)) { result, _ in
-                            if let urls = result as? [String] {
-                                for url in urls where !self.urls.contains(url) {
-                                    self.urls.append(url)
-                                }
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self.webView.evaluateJavaScript(JSCode.collectAllJSForLastItem(postId: postId)) { [weak self] result, _ in
+                            guard let self else { return }
+                            let more = self.parseJSGetMediaResult(result)
+                            for item in more where !self.medias.contains(where: { $0.canonicalKey == item.canonicalKey }) {
+                                self.medias.append(item)
                             }
                             self.presentMediaList()
                         }
@@ -172,18 +189,68 @@ class InstagramViewController: UIViewController {
         }
     }
 
+    private func parseJSGetMediaResult(_ result: Any?) -> [Media] {
+        var out: [Media] = []
+
+        // ① 레거시: result가 String 하나 (video 우선/이미지 1개만 반환하던 버전)
+        if let s = result as? String {
+            out.append(guessMedia(from: s))
+            return out
+        }
+
+        // ② 배열(String)인 경우
+        if let arr = result as? [String] {
+            for s in arr { out.append(guessMedia(from: s)) }
+            return out
+        }
+
+        // ③ 배열(딕셔너리)인 경우: [{type:"image"|"video", url:"..."}]
+        if let arr = result as? [Any] {
+            for any in arr {
+                if let d = any as? [String: Any],
+                   let type = d["type"] as? String,
+                   let url = d["url"] as? String {
+                    if type == "video" {
+                        out.append(.video(urlString: url))
+                    } else {
+                        out.append(.image(urlString: url))
+                    }
+                } else if let s = any as? String { // 혹시 섞여 들어오면 방어
+                    out.append(guessMedia(from: s))
+                }
+            }
+            return out
+        }
+
+        return out
+    }
+
+    /// 확장자/경로로 대충 타입 유추 (JS가 type 안 줄 때 대비)
+    private func guessMedia(from url: String) -> Media {
+        let lower = url.lowercased()
+
+            // 1) URL 파싱해서 pathExtension으로 확실하게 판별
+            if let ext = URL(string: lower)?.pathExtension, ["mp4", "mov", "m4v"].contains(ext) {
+                return .video(urlString: url)
+            }
+
+            // 2) 보조 휴리스틱 (릴스, dash 스트림 흔적 등)
+            if lower.contains("/reel/") ||
+               lower.contains("video_dash") ||
+               lower.contains("is_video=1") {
+                return .video(urlString: url)
+            }
+
+            return .image(urlString: url)
+    }
+    
     func presentMediaList() {
         hideBlockingView()
 
-        let items = urls.map { url -> MediaItem in
-            let type: MediaType = url.contains(".mp4") ? .video : .image
-            return MediaItem(url: url, previewURL: "", type: type)
-        }
-
-        if items.isEmpty {
+        if medias.isEmpty {
             showAlert(message: "미디어를 찾을 수 없습니다")
         } else {
-            let listVC = MediaListViewController(mediaItems: items)
+            let listVC = MediaListViewController(medias: medias)
             self.present(UINavigationController(rootViewController: listVC), animated: true)
         }
     }
