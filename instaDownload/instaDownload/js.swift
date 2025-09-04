@@ -29,28 +29,43 @@ struct JSCode {
         return false;
     })();
     """
-    
+        
     static let getMedia = """
-    (function() {
-        let video = document.querySelector("article video");
-        if (video && video.src) return video.src;
+        (function() {
+            const urls = [];
 
-        let imgs = Array.from(document.querySelectorAll("article img"));
-        let valid = imgs.find(img => {
-            const w = img.naturalWidth || img.width;
-            const h = img.naturalHeight || img.height;
-            return w >= 200 && h >= 200 && !img.src.includes("profile");
-        });
+            // 1) 비디오 먼저
+            let video = document.querySelector("article video");
+            if (video && video.src) {
+                urls.push(video.src);
+            }
 
-        if (!valid) return null;
-        if (valid.srcset) {
-            let candidates = valid.srcset.split(',').map(s => s.trim().split(' ')[0]);
-            return candidates[candidates.length - 1];
-        } else {
-            return valid.src;
-        }
-    })();
+            // 2) 이미지 후보들
+            let imgs = Array.from(document.querySelectorAll("article img"));
+            let validImgs = imgs.filter(img => {
+                const w = img.naturalWidth || img.width;
+                const h = img.naturalHeight || img.height;
+                return w >= 200 && h >= 200 && !img.src.includes("profile");
+            });
+
+            validImgs.forEach(img => {
+                if (img.srcset) {
+                    let candidates = img.srcset.split(',')
+                        .map(s => s.trim().split(' ')[0]);
+                    if (candidates.length > 0) {
+                        urls.push(candidates[candidates.length - 1]); // 가장 큰 해상도
+                    }
+                } else if (img.src) {
+                    urls.push(img.src);
+                }
+            });
+
+            // 결과를 "url,url,url" 형태의 문자열로 반환
+            return urls.join(",");
+        })();
     """
+    
+    
     
     static func collectAllJSForLastItem(postId:String) -> String {
         return """

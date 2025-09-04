@@ -144,8 +144,11 @@ class InstagramViewController: UIViewController {
 
         webView.evaluateJavaScript(JSCode.getMedia) { [weak self] result, _ in
             guard let self else { return }
-
-            let items = self.parseJSGetMediaResult(result)
+            
+            guard let resultString = result as? String else { return }
+            let items = resultString.split(separator: ",")
+                .map { String($0)}
+                .compactMap { [weak self] in self?.guessMedia(from: $0) }
 
             // ❶ 이번 슬라이드에서 아무것도 못 얻었으면, 다음으로 넘어가지 말고 같은 슬라이드 재시도
             if items.isEmpty {
