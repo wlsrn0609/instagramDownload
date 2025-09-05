@@ -14,8 +14,8 @@ class MediaDetailPageViewController: UIPageViewController, UIPageViewControllerD
     let cashe : [String:CellRenderable]
     var startIndex: Int
 
-    init(mediaItems: [Media], startIndex: Int, cashe: [String:CellRenderable]) {
-        self.medias = mediaItems
+    init(medias: [Media], startIndex: Int, cashe: [String:CellRenderable]) {
+        self.medias = medias
         self.startIndex = startIndex
         self.cashe = cashe
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
@@ -36,8 +36,8 @@ class MediaDetailPageViewController: UIPageViewController, UIPageViewControllerD
     }
 
     func makePageViewController(at index: Int) -> MediaPageContentViewController {
-        let item = medias[index]
-        let vc = MediaPageContentViewController(mediaItem: item, cashe: self.cashe)
+        let media = medias[index]
+        let vc = MediaPageContentViewController(media: media, cashe: self.cashe)
         vc.index = index
         return vc
     }
@@ -69,8 +69,8 @@ class MediaPageContentViewController: UIViewController {
     let hud = UIActivityIndicatorView(style: .large)
     var playerLayer: AVPlayerLayer?
 
-    init(mediaItem: Media, cashe: [String:CellRenderable]) {
-        self.media = mediaItem
+    init(media: Media, cashe: [String:CellRenderable]) {
+        self.media = media
         self.cashe = cashe
         super.init(nibName: nil, bundle: nil)
     }

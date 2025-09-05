@@ -12,11 +12,8 @@
 		10F874362E6137D500DCAA38 /* js.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874352E6137D500DCAA38 /* js.swift */; };
 		10F874382E6146BA00DCAA38 /* PhotoAlbumHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */; };
 		10F8743A2E616A6900DCAA38 /* MediaDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F874392E616A6900DCAA38 /* MediaDownloader.swift */; };
-		10F8743C2E616C2000DCAA38 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F8743B2E616C2000DCAA38 /* String+.swift */; };
 		10F8743E2E61978700DCAA38 /* UIViewController + UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */; };
 		10FD9E422DE3F0EE00560FCF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E362DE3F0EE00560FCF /* AppDelegate.swift */; };
-		10FD9E432DE3F0EE00560FCF /* MediaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E3D2DE3F0EE00560FCF /* MediaItem.swift */; };
-		10FD9E442DE3F0EE00560FCF /* MediaType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E3E2DE3F0EE00560FCF /* MediaType.swift */; };
 		10FD9E452DE3F0EE00560FCF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E3F2DE3F0EE00560FCF /* SceneDelegate.swift */; };
 		10FD9E462DE3F0EE00560FCF /* InstagramViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10FD9E402DE3F0EE00560FCF /* InstagramViewController.swift */; };
 		10FD9E472DE3F0EE00560FCF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10FD9E372DE3F0EE00560FCF /* Assets.xcassets */; };
@@ -35,7 +32,6 @@
 		10F874352E6137D500DCAA38 /* js.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = js.swift; sourceTree = "<group>"; };
 		10F874372E6146BA00DCAA38 /* PhotoAlbumHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumHelper.swift; sourceTree = "<group>"; };
 		10F874392E616A6900DCAA38 /* MediaDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDownloader.swift; sourceTree = "<group>"; };
-		10F8743B2E616C2000DCAA38 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + UIAlertController.swift"; sourceTree = "<group>"; };
 		10FD9E1A2DE3EFAC00560FCF /* instaDownload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = instaDownload.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		10FD9E362DE3F0EE00560FCF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -43,8 +39,6 @@
 		10FD9E382DE3F0EE00560FCF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		10FD9E392DE3F0EE00560FCF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		10FD9E3B2DE3F0EE00560FCF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		10FD9E3D2DE3F0EE00560FCF /* MediaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItem.swift; sourceTree = "<group>"; };
-		10FD9E3E2DE3F0EE00560FCF /* MediaType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaType.swift; sourceTree = "<group>"; };
 		10FD9E3F2DE3F0EE00560FCF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		10FD9E402DE3F0EE00560FCF /* InstagramViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramViewController.swift; sourceTree = "<group>"; };
 		10FD9E4B2DE3F10800560FCF /* MediaCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
@@ -75,6 +69,19 @@
 			path = MediaSaver;
 			sourceTree = "<group>";
 		};
+		1041FD6B2E6ACADC00F70806 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				10FD9E3F2DE3F0EE00560FCF /* SceneDelegate.swift */,
+				10FD9E402DE3F0EE00560FCF /* InstagramViewController.swift */,
+				10FD9E4F2DE3F13500560FCF /* MediaListViewController.swift */,
+				10FD9E4B2DE3F10800560FCF /* MediaCell.swift */,
+				10FD9E4D2DE3F12100560FCF /* MediaDetailViewController.swift */,
+				10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
 		10FD9E112DE3EFAC00560FCF = {
 			isa = PBXGroup;
 			children = (
@@ -99,20 +106,12 @@
 				10FD9E382DE3F0EE00560FCF /* Info.plist */,
 				10FD9E3A2DE3F0EE00560FCF /* LaunchScreen.storyboard */,
 				10FD9E3C2DE3F0EE00560FCF /* Main.storyboard */,
-				10FD9E3F2DE3F0EE00560FCF /* SceneDelegate.swift */,
-				108C6E8B2E272C4500F4CD5C /* Logger.swift */,
-				10F874352E6137D500DCAA38 /* js.swift */,
-				10F8743B2E616C2000DCAA38 /* String+.swift */,
-				10FD9E402DE3F0EE00560FCF /* InstagramViewController.swift */,
+				1041FD6B2E6ACADC00F70806 /* UI */,
 				10FD9E532DE4278D00560FCF /* InstagramViewController+WKNavigationDelegate.swift */,
 				10FD9E512DE3F28300560FCF /* Extensions.swift */,
-				10FD9E4F2DE3F13500560FCF /* MediaListViewController.swift */,
-				10FD9E4D2DE3F12100560FCF /* MediaDetailViewController.swift */,
-				10F8743D2E61978700DCAA38 /* UIViewController + UIAlertController.swift */,
+				108C6E8B2E272C4500F4CD5C /* Logger.swift */,
+				10F874352E6137D500DCAA38 /* js.swift */,
 				1041FC692E66E2D400F70806 /* MediaSaver */,
-				10FD9E4B2DE3F10800560FCF /* MediaCell.swift */,
-				10FD9E3D2DE3F0EE00560FCF /* MediaItem.swift */,
-				10FD9E3E2DE3F0EE00560FCF /* MediaType.swift */,
 			);
 			path = instaDownload;
 			sourceTree = "<group>";
@@ -195,11 +194,8 @@
 				10FD9E422DE3F0EE00560FCF /* AppDelegate.swift in Sources */,
 				108C6E8C2E272C4500F4CD5C /* Logger.swift in Sources */,
 				10FD9E522DE3F28300560FCF /* Extensions.swift in Sources */,
-				10FD9E432DE3F0EE00560FCF /* MediaItem.swift in Sources */,
 				10F874362E6137D500DCAA38 /* js.swift in Sources */,
-				10FD9E442DE3F0EE00560FCF /* MediaType.swift in Sources */,
 				10F8743E2E61978700DCAA38 /* UIViewController + UIAlertController.swift in Sources */,
-				10F8743C2E616C2000DCAA38 /* String+.swift in Sources */,
 				10FD9E502DE3F13500560FCF /* MediaListViewController.swift in Sources */,
 				10FD9E542DE4278D00560FCF /* InstagramViewController+WKNavigationDelegate.swift in Sources */,
 				10FD9E452DE3F0EE00560FCF /* SceneDelegate.swift in Sources */,

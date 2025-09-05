@@ -12,7 +12,8 @@ import Photos
 class MediaListViewController: UICollectionViewController {
 
     let medias: [Media]
-    var cashe : [String:CellRenderable] = [:]
+    private var cashe : [String:CellRenderable] = [:]
+    private var inFlight = [String: URLSessionDataTask]()
 
     init(medias: [Media]) {
         self.medias = medias
@@ -43,40 +44,53 @@ class MediaListViewController: UICollectionViewController {
         let media = medias[indexPath.item]
         let key = media.urlString
         
+        cell.representedKey = key
+        
         if let cashedRenderable = cashe[key] {
             cell.configure(with: cashedRenderable)
             return cell
-        }else{
-            MediaSaver.shared.downloadForDisplay([media]) { [weak self] result in
-                guard let self else { return }
-                switch result {
-                case .success(let success):
-                    guard let cellRenderable = success.first else { return }
-                    
-                    cashe[key] = cellRenderable
-                    DispatchQueue.main.async {
-                        if let kIndexPath = collectionView.indexPath(for: cell), indexPath == kIndexPath {
-                            cell.configure(with: cellRenderable)
-                        }
-                    }
-                case .failure(let failure):
-                    Logger.log("error:\(failure.localizedDescription)")
+        }
+        
+        inFlight[key]?.cancel()
+        inFlight[key] = nil
+        
+        let task = MediaSaver.shared.loadRenderable(for: media) { [weak self, weak cell] cellRenderable in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.inFlight[key] = nil
+                guard let cellRenderable else { return }
+                
+                guard cell?.representedKey == key else { return }
+                if let kIndexPath = collectionView.indexPath(for: cell ?? UICollectionViewCell()), indexPath == kIndexPath {
+                    self.cashe[key] = cellRenderable
+                    cell?.configure(with: cellRenderable)
                 }
             }
         }
         
+        if let task { inFlight[key] = task }
+        
         return cell
     }
 
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard indexPath.item < medias.count else { return }
+        let key = self.medias[indexPath.item].urlString
+        inFlight[key]?.cancel()
+        inFlight[key] = nil
+    }
+    
+    
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let detailVC = MediaDetailPageViewController(mediaItems: medias, startIndex: indexPath.item, cashe: self.cashe)
+        let detailVC = MediaDetailPageViewController(medias: medias, startIndex: indexPath.item, cashe: self.cashe)
         navigationController?.pushViewController(detailVC, animated: true)
     }
 
     @objc func saveAllMedia() {
         MediaSaver.shared.downloadAndSaveMedias(self.medias, imageFormat: .heic(quality: 1, fallbackToJPEG: true)) { result in
             switch result {
-            case .success(let success):
+            case .success(_):
                 self.showAlert("모두 저장하였습니다")
             case .failure(let error):
                 self.showAlert("저장에 실패하였습니다\n\(error.localizedDescription)")

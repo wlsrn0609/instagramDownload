@@ -49,6 +49,26 @@ public final class MediaSaver {
     public static let shared = MediaSaver()
     private init() {}
 
+    /// 단일 미디어를 셀 렌더링용으로 받기 (이미지 or 비디오썸네일)
+    /// 반환값: 취소 가능한 URLSessionDataTask (비디오의 경우 실제 네트워크 태스크)
+    
+    @discardableResult
+    func loadRenderable(for media: Media, completion: @escaping (CellRenderable?) -> Void) -> URLSessionDataTask? {
+        switch media {
+        case .image(let urlString):
+            return MediaDownloader.shared.loadImage(urlString) { image in
+                guard let image else { completion(nil); return }
+                completion(.photo(image: image, originalURL: urlString))
+            }
+        case .video(let urlString):
+            return MediaDownloader.shared.loadVideo(urlString) { localUrl in
+                guard let localUrl else { completion(nil); return }
+                let videoCellRenderable = Self.makeVideoThumbnail(from: localUrl).map { CellRenderable.video(thumbnail: $0, localURL: localUrl, originalURL: urlString) }
+                completion(videoCellRenderable)
+            }
+        }
+    }
+    
     // MARK: - Public High-level APIs
 
     public func downloadAndSaveMedia(_ item: Media,
@@ -66,7 +86,7 @@ public final class MediaSaver {
             switch items[idx] {
             case .image(let url):
                 MediaDownloader.shared.loadImage(url) { img in
-                    Logger.log("url:\(url), img:\(img)")
+                    Logger.log("url:\(url), img:\(String(describing: img))")
                     guard let img else { completion(.failure(PhotoAlbumHelperError.dataEncodingFailed)); return }
                     PhotoAlbumHelper.shared.saveImageToInstaDownload(img, format: imageFormat) { res in
                         switch res {
@@ -89,57 +109,6 @@ public final class MediaSaver {
             }
         }
         step(0)
-    }
-
-    // MARK: - 셀 렌더링용: 썸네일/이미지 확보 (혼합 순차)
-    public func downloadForDisplay(_ items: [Media],
-                                   completion: @escaping (Result<[CellRenderable], Error>) -> Void) {
-        var result: [CellRenderable] = []
-
-        func step(_ idx: Int) {
-            if idx >= items.count {
-                completion(.success(result)); return
-            }
-            switch items[idx] {
-            case .image(let url):
-                MediaDownloader.shared.loadImage(url) { img in
-                    Logger.log("url:\(url), img:\(img)")
-                    guard let img else { completion(.failure(PhotoAlbumHelperError.dataEncodingFailed)); return }
-                    result.append(.photo(image: img, originalURL: url))
-                    step(idx + 1)
-                }
-            case .video(let url):
-                MediaDownloader.shared.loadVideo(url) { local in
-                    guard let local else { completion(.failure(PhotoAlbumHelperError.fileNotReachable)); return }
-                    // 첫 프레임 썸네일 생성
-                    if let thumb = Self.makeVideoThumbnail(from: local) {
-                        result.append(.video(thumbnail: thumb, localURL: local, originalURL: url))
-                        step(idx + 1)
-                    } else {
-                        Logger.log("url:\(url), local:\(local)")
-                        completion(.failure(PhotoAlbumHelperError.dataEncodingFailed))
-                    }
-                }
-            }
-        }
-        step(0)
-    }
-    public func downloadForDisplay(_ media: Media,
-                                   completion: @escaping (Result<CellRenderable, Error>) -> Void) {
-        
-        self.downloadForDisplay([media]) { result in
-            switch result {
-            case .success(let list):
-                if let first = list.first {
-                    completion(.success(first))
-                }else{
-                    completion(.failure(PhotoAlbumHelperError.unknown))
-                }
-            case .failure(let error):
-                Logger.log("error:\(error.localizedDescription)")
-            }
-        }
-        
     }
 
     // MARK: - 썸네일 생성 (첫 프레임)
