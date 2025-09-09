@@ -8,8 +8,14 @@ import UIKit
 
 class InstagramViewController: UIViewController {
 
+    @IBOutlet weak var backView: UIView!
     var webView: WKWebView!
-    let downloadButton = UIButton(type: .system)
+    
+    @IBOutlet weak var stack: UIStackView!
+    @IBOutlet weak var refreshButton: UIButton!
+    @IBOutlet weak var settingsButton: UIButton!
+    @IBOutlet weak var downloadButton: UIButton!
+    
     var blockingView: UIView?
     var medias: [Media] = []
 
@@ -27,58 +33,34 @@ class InstagramViewController: UIViewController {
         webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
         webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
-        view.addSubview(webView)
+        backView.addSubview(webView)
+        
+        backView.clipsToBounds = true
+        
         webView.translatesAutoresizingMaskIntoConstraints = false
-
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            webView.topAnchor.constraint(equalTo: backView.topAnchor, constant: 0),
+            webView.leadingAnchor.constraint(equalTo: backView.leadingAnchor, constant: 0),
+            webView.trailingAnchor.constraint(equalTo: backView.trailingAnchor, constant: 0),
+            webView.bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 0),
         ])
+        
+        backView.backgroundColor = UIColor.clear
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        backView.layer.cornerRadius = 20
+        [refreshButton,downloadButton,settingsButton].forEach { $0?.layer.cornerRadius = 20 }
     }
 
+    
     func setupButtons() {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.alignment = .fill
-        stack.distribution = .fillEqually
-        stack.spacing = 10
-
-        let refreshButton = UIButton(type: .system)
-        refreshButton.setTitle("🔄", for: .normal)
-        refreshButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
-        refreshButton.backgroundColor = .lightGray
-        refreshButton.tintColor = .white
-        refreshButton.layer.cornerRadius = 8
         refreshButton.addTarget(self, action: #selector(refreshClipboardURL), for: .touchUpInside)
-
-        downloadButton.setTitle("다운로드", for: .normal)
-        downloadButton.backgroundColor = .systemBlue
-        downloadButton.tintColor = .white
-        downloadButton.layer.cornerRadius = 8
         downloadButton.addTarget(self, action: #selector(handleDownload), for: .touchUpInside)
-
-        let settingsButton = UIButton(type: .system)
-        settingsButton.setTitle("설정", for: .normal)
-        settingsButton.backgroundColor = .darkGray
-        settingsButton.tintColor = .white
-        settingsButton.layer.cornerRadius = 8
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
-
-        stack.addArrangedSubview(refreshButton)
-        stack.addArrangedSubview(downloadButton)
-        stack.addArrangedSubview(settingsButton)
-
-        view.addSubview(stack)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            stack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: 360),
-            stack.heightAnchor.constraint(equalToConstant: 44),
-            webView.bottomAnchor.constraint(equalTo: stack.topAnchor, constant: -10)
-        ])
+        stack.backgroundColor = UIColor.clear
+        
     }
 
     func loadInstagram() {
