@@ -129,10 +129,45 @@ class InstagramViewController: UIViewController {
     }
 
     func moveToFirstSlideAndStartCollection() {
+        
+        if let clipboardURL = UIPasteboard.general.string,
+           clipboardURL.contains("instagram.com"),
+           clipboardURL.contains("/stories/") {
+            Logger.log()
+            collectStoryOnce()
+            return
+        }
+        
         webView.evaluateJavaScript(JSCode.goToMoveFirst) { [weak self] _, _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
                 self?.collectSequentially(attempt: 0)
             }
+        }
+    }
+    
+    func collectStoryOnce(){
+        webView.evaluateJavaScript(JSCode.getStoryMedia) { [weak self] result, _ in
+            guard let self = self else { return }
+            Logger.log("result : \(result)")
+            if let s = result as? String {
+                let items = s
+                    .split(separator: ",")
+                    .map { String($0) }
+                    .map(self.guessMedia(from:))
+                // 중복 제거
+                for item in items where !self.medias.contains(where: { $0.canonicalKey == item.canonicalKey }) {
+                    self.medias.append(item)
+                }
+            } else {
+                // 혹시 형식이 달라도 방어적으로 기존 파서 사용
+                let items = self.parseJSGetMediaResult(result)
+                for item in items where !self.medias.contains(where: { $0.canonicalKey == item.canonicalKey }) {
+                    self.medias.append(item)
+                }
+            }
+            
+            // 바로 종료/표시
+            self.presentMediaList()
         }
     }
 
